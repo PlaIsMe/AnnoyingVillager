@@ -6,7 +6,6 @@ import com.pla.annoyingvillagers.entity.ShadowHerobrineEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.*;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 

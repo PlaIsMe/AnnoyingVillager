@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.event;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.EnderAegisItem;
+import com.pla.annoyingvillagers.item.RedAxeItem;
 import com.pla.annoyingvillagers.item.ShadowObsidianPillarItem;
 import com.pla.annoyingvillagers.item.ShadowObsidianSwordItem;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
@@ -47,6 +48,7 @@ public class ModModelPredicateProvider {
             addShieldPropertyOverrides(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID,"second_form"),(stack,world,entity,seed) -> EnderAegisItem.isSecondForm(stack) ? 1.0F : 0.0F,AnnoyingVillagersModItems.ENDER_AEGIS.get());
             if (VanillaWeaponAbilityUtil.abilitiesEnabled()) ItemProperties.register(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_PILLAR.get(), ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "burst"), (stack, world, entity, seed) -> ShadowObsidianPillarItem.isBurst(stack) ? 1.0F : 0.0F);
             if (VanillaWeaponAbilityUtil.abilitiesEnabled()) ItemProperties.register(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get(), ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "straight_form"), (stack, world, entity, seed) -> ShadowObsidianSwordItem.isStraightForm(stack) ? 1.0F : 0.0F);
+            if (VanillaWeaponAbilityUtil.abilitiesEnabled()) ItemProperties.register(AnnoyingVillagersModItems.RED_AXE.get(), ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "giant_form"), (stack, world, entity, seed) -> RedAxeItem.isGiantForm(stack, world) ? 1.0F : 0.0F);
         });
     }
 

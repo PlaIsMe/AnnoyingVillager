@@ -33,7 +33,9 @@ public final class VanillaWeaponTooltipEvent {
         if (item instanceof NullWeaponItem) addChargeTooltip(tooltip, "tooltip.annoyingvillagers.vanilla_combat.null_charge", NullWeaponItem.getCharge(stack), 100);
         if (item instanceof EnderAegisItem) addChargeTooltip(tooltip, "tooltip.annoyingvillagers.vanilla_combat.aegis_charge", Math.round(EnderAegisItem.getCharge(stack)), 100);
 
-        if (item instanceof WoopieTheSwordItem) addCombatTooltip(tooltip, "tooltip.annoyingvillagers.vanilla_combat.woopie.right_click", "tooltip.annoyingvillagers.vanilla_combat.woopie.special");
+        if (item instanceof RedAxeItem) addCombatTooltip(tooltip, "tooltip.annoyingvillagers.vanilla_combat.red_axe.right_click");
+        else if (item instanceof EarthAxeItem) addCombatTooltip(tooltip, "tooltip.annoyingvillagers.vanilla_combat.earth_axe.right_click", "tooltip.annoyingvillagers.vanilla_combat.earth_axe.special");
+        else if (item instanceof WoopieTheSwordItem) addCombatTooltip(tooltip, "tooltip.annoyingvillagers.vanilla_combat.woopie.right_click", "tooltip.annoyingvillagers.vanilla_combat.woopie.special");
         else if (item instanceof ThunderDiamondBladeItem) addCombatTooltip(tooltip, "tooltip.annoyingvillagers.vanilla_combat.thunder_diamond_blade.right_click");
         else if (item instanceof ShadowObsidianPillarItem) addCombatTooltip(tooltip, "tooltip.annoyingvillagers.vanilla_combat.shadow_obsidian_pillar.critical", "tooltip.annoyingvillagers.vanilla_combat.shadow_obsidian_pillar.right_click", "tooltip.annoyingvillagers.vanilla_combat.shadow_obsidian_pillar.special");
         else if (item instanceof ShadowObsidianSwordItem) addCombatTooltip(tooltip, "tooltip.annoyingvillagers.vanilla_combat.shadow_obsidian_sword.right_click", "tooltip.annoyingvillagers.vanilla_combat.shadow_obsidian_sword.special");

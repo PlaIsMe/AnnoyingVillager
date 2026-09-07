@@ -105,6 +105,7 @@ public class SpecialAttackOnKeyPressedEvent {
             else BlueDemonTridentItem.activateVanillaElectricField(player);
             return;
         }
+        if (EarthAxeItem.activateVanillaSpecial(player)) return;
         if (WoopieTheSwordItem.activateVanillaSpecial(player)) return;
         if (ShadowObsidianSwordItem.activateVanillaSpecial(player)) return;
         if (EnderSlayerScytheItem.activateVanillaSpecial(player)) return;

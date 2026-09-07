@@ -1,3 +1,11 @@
 {
-	"parent": "minecraft:item/wooden_axe"
+  "parent": "minecraft:item/wooden_axe",
+  "overrides": [
+    {
+      "predicate": {
+        "annoyingvillagers:giant_form": 1.0
+      },
+      "model": "annoyingvillagers:item/giant_red_axe"
+    }
+  ]
 }

@@ -3,10 +3,16 @@ package com.pla.annoyingvillagers.item;
 import com.pla.annoyingvillagers.entity.FloatingLookBlockEntity;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
+import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
@@ -25,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 public class EarthAxeItem extends SwordItem implements RigCombatProfileProvider {
+    public static final int VANILLA_WALL_COOLDOWN_TICKS = 20 * 60;
+    public static final int VANILLA_LIFT_COOLDOWN_TICKS = 20 * 10;
     private static final int WALL_WIDTH = 5;
     private static final int WALL_HEIGHT = 4;
     private static final int WALL_DISTANCE = 2;
@@ -56,6 +64,51 @@ public class EarthAxeItem extends SwordItem implements RigCombatProfileProvider 
                 return Ingredient.of(new ItemStack(Items.NETHERITE_INGOT));
             }
         }, 3, -2.8F, (new Properties()));
+    }
+
+    @Override
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled()
+                || hand != InteractionHand.MAIN_HAND
+                || player.getCooldowns().isOnCooldown(this)) {
+            return super.use(level, player, hand);
+        }
+
+        if (level instanceof ServerLevel serverLevel) {
+            summonEarthWall(serverLevel, player);
+            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+            player.getCooldowns().addCooldown(this, VANILLA_WALL_COOLDOWN_TICKS);
+        }
+
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+    }
+
+    public static boolean activateVanillaSpecial(Player player) {
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled()
+                || player.level().isClientSide()
+                || !(player.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+
+        ItemStack stack = player.getMainHandItem();
+        if (!(stack.getItem() instanceof EarthAxeItem item)
+                || player.getCooldowns().isOnCooldown(item)) {
+            return false;
+        }
+
+        Vec3 bladePos = CommonUtil.getVanillaSwordOrBodyPosition(player)
+                .add(player.getLookAngle().scale(0.5D));
+        BlockPos liftPos = findLiftableBlockUnderPoint(serverLevel, bladePos, 6, 1);
+        if (liftPos != null) {
+            liftBlockAt(serverLevel, liftPos, player);
+        }
+
+        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+        player.getCooldowns().addCooldown(item, VANILLA_LIFT_COOLDOWN_TICKS);
+        return true;
     }
 
     public static void summonEarthWall(ServerLevel level, LivingEntity caster) {
