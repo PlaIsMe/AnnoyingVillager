@@ -1,0 +1,937 @@
+{
+  "customGroups": [
+    {
+      "name": "annoyingvillagers_axes",
+      "items": [
+        "annoyingvillagers:demoniac_voltage_reaver",
+        "annoyingvillagers:diamond_battleaxe",
+        "annoyingvillagers:diamond_greataxe",
+        "annoyingvillagers:diamond_greatsword",
+        "annoyingvillagers:diamond_mace",
+        "annoyingvillagers:earth_axe",
+        "annoyingvillagers:exterminator_battleaxe",
+        "annoyingvillagers:exterminator_battleaxe_green",
+        "annoyingvillagers:giant_netherite_axe",
+        "annoyingvillagers:golden_mace",
+        "annoyingvillagers:iron_greataxe",
+        "annoyingvillagers:legendary_sword",
+        "annoyingvillagers:netherite_greataxe",
+        "annoyingvillagers:null_axe",
+        "annoyingvillagers:red_axe",
+        "annoyingvillagers:red_steel_axe",
+        "annoyingvillagers:ruby_greatsword",
+        "annoyingvillagers:samantha_the_killer_axe",
+        "annoyingvillagers:warden_axe"
+      ]
+    },
+    {
+      "name": "annoyingvillagers_fists",
+      "items": [
+        "annoyingvillagers:bedrock_weapon",
+        "annoyingvillagers:diamond_armblade",
+        "annoyingvillagers:diamond_claw",
+        "annoyingvillagers:diamond_moon_blade",
+        "annoyingvillagers:golden_moon_blade",
+        "annoyingvillagers:null_weapon",
+        "annoyingvillagers:obsidian_weapon",
+        "annoyingvillagers:shadow_obsidian_pillar",
+        "annoyingvillagers:shadow_obsidian_weapon"
+      ]
+    },
+    {
+      "name": "annoyingvillagers_hammers",
+      "items": [
+        "annoyingvillagers:crafting_table",
+        "annoyingvillagers:holy_llama_hammer",
+        "annoyingvillagers:ladder",
+        "annoyingvillagers:obsidian_sledgehammer",
+        "annoyingvillagers:wooden_door"
+      ]
+    },
+    {
+      "name": "annoyingvillagers_pickaxes",
+      "items": [
+        "annoyingvillagers:null_pickaxe"
+      ]
+    },
+    {
+      "name": "annoyingvillagers_polearms",
+      "items": [
+        "annoyingvillagers:diamond_chipped_longsword",
+        "annoyingvillagers:diamond_halberd",
+        "annoyingvillagers:diamond_longsword",
+        "annoyingvillagers:double_diamond_glaive",
+        "annoyingvillagers:ender_glaive",
+        "annoyingvillagers:ender_slayer_scythe",
+        "annoyingvillagers:golden_longsword",
+        "annoyingvillagers:iron_double_bladed_halberd",
+        "annoyingvillagers:iron_halberd",
+        "annoyingvillagers:iron_longsword",
+        "annoyingvillagers:iron_twin_blade_katana",
+        "annoyingvillagers:ruby_longsword",
+        "annoyingvillagers:spear_axe"
+      ]
+    },
+    {
+      "name": "annoyingvillagers_spears",
+      "items": [
+        "annoyingvillagers:blackscratcher",
+        "annoyingvillagers:diamond_bolt",
+        "annoyingvillagers:diamond_spear",
+        "annoyingvillagers:netherite_spear",
+        "annoyingvillagers:shadow_obsidian_sword",
+        "annoyingvillagers:twin_diamond_spear"
+      ]
+    },
+    {
+      "name": "annoyingvillagers_swords",
+      "items": [
+        "annoyingvillagers:black_fire_sword",
+        "annoyingvillagers:blue_flame_sword",
+        "annoyingvillagers:centranos_sword",
+        "annoyingvillagers:clow_sword",
+        "annoyingvillagers:darkness_sword",
+        "annoyingvillagers:diamond_attractor_sword",
+        "annoyingvillagers:diamond_blaster_sword",
+        "annoyingvillagers:diamond_falchion",
+        "annoyingvillagers:diamond_great_falchion",
+        "annoyingvillagers:diamond_knife",
+        "annoyingvillagers:diamond_knight_sword",
+        "annoyingvillagers:diamond_laevateinn",
+        "annoyingvillagers:diamond_sabre",
+        "annoyingvillagers:diamond_sickle",
+        "annoyingvillagers:diamond_warblade",
+        "annoyingvillagers:dnax_hooked_sword",
+        "annoyingvillagers:flanker_hooked_sword",
+        "annoyingvillagers:great_sword",
+        "annoyingvillagers:hacker_sword",
+        "annoyingvillagers:hooked_diamond_sword",
+        "annoyingvillagers:hooked_golden_sword",
+        "annoyingvillagers:hooked_iron_sword",
+        "annoyingvillagers:iron_cleaver",
+        "annoyingvillagers:iron_sickle",
+        "annoyingvillagers:jade_sword",
+        "annoyingvillagers:knife",
+        "annoyingvillagers:netherite_falchion",
+        "annoyingvillagers:netherite_knife",
+        "annoyingvillagers:netherite_sabre",
+        "annoyingvillagers:null_sword",
+        "annoyingvillagers:paladin_sword",
+        "annoyingvillagers:red_diamond_sword",
+        "annoyingvillagers:ruby_knight_sword",
+        "annoyingvillagers:ruby_sword",
+        "annoyingvillagers:thunder_diamond_blade",
+        "annoyingvillagers:trapdoor",
+        "annoyingvillagers:woopie_the_sword"
+      ]
+    },
+    {
+      "name": "annoyingvillagers_tridents",
+      "items": [
+        "annoyingvillagers:blue_demon_trident"
+      ]
+    }
+  ],
+  "item": {
+    "annoyingvillagers_axes": {
+      "kind": "AXE",
+      "armKind": "AXE",
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_mace",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_sideways_start",
+          "looping": "new_mining_sideways_loop",
+          "end": "new_mining_sideways_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        }
+      ],
+      "betterCombat": [
+        {
+          "type": "melee_combo",
+          "attack_1": "attack_1",
+          "attack_2": "attack_2",
+          "attack_3": "attack_mace"
+        }
+      ]
+    },
+    "annoyingvillagers_fists": {
+      "kind": "SWORD",
+      "armKind": "SWORD",
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "new_punch_attack",
+          "var_2": "new_punch_attack",
+          "var_3": "new_punch_attack",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_punch_start",
+          "looping": "new_punch_loop",
+          "end": "new_punch_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        }
+      ],
+      "betterCombat": [
+        {
+          "type": "melee_combo",
+          "attack_1": "new_punch_attack",
+          "attack_2": "new_punch_attack",
+          "attack_3": "new_punch_attack"
+        }
+      ]
+    },
+    "annoyingvillagers_hammers": {
+      "kind": "MACE",
+      "armKind": "MACE",
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_mace",
+          "var_2": "attack_mace",
+          "var_3": "attack_critical",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_sideways_start",
+          "looping": "new_mining_sideways_loop",
+          "end": "new_mining_sideways_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        }
+      ],
+      "betterCombat": [
+        {
+          "type": "melee_combo",
+          "attack_1": "attack_mace",
+          "attack_2": "attack_mace",
+          "attack_3": "attack_critical"
+        }
+      ]
+    },
+    "annoyingvillagers_pickaxes": {
+      "kind": "PICKAXE",
+      "armKind": "PICKAXE",
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_forward_start",
+          "looping": "new_mining_forward_loop",
+          "end": "new_mining_forward_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect_pickaxe"
+        }
+      ],
+      "betterCombat": [
+        {
+          "type": "melee_combo",
+          "attack_1": "attack_1",
+          "attack_2": "attack_2",
+          "attack_3": "attack_3"
+        }
+      ]
+    },
+    "annoyingvillagers_polearms": {
+      "kind": "SPEAR",
+      "armKind": "SPEAR",
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_spear",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect_spear"
+        }
+      ],
+      "betterCombat": [
+        {
+          "type": "melee_combo",
+          "attack_1": "attack_1",
+          "attack_2": "attack_2",
+          "attack_3": "attack_spear"
+        }
+      ]
+    },
+    "annoyingvillagers_spears": {
+      "kind": "SPEAR",
+      "armKind": "SPEAR",
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_spear",
+          "var_2": "attack_spear",
+          "var_3": "attack_spear",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect_spear"
+        }
+      ],
+      "betterCombat": [
+        {
+          "type": "melee_combo",
+          "attack_1": "attack_spear",
+          "attack_2": "attack_spear",
+          "attack_3": "attack_spear"
+        }
+      ]
+    },
+    "annoyingvillagers_swords": {
+      "kind": "SWORD",
+      "armKind": "SWORD",
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        }
+      ],
+      "betterCombat": [
+        {
+          "type": "melee_combo",
+          "attack_1": "attack_1",
+          "attack_2": "attack_2",
+          "attack_3": "attack_3"
+        }
+      ]
+    },
+    "annoyingvillagers_tridents": {
+      "kind": "TRIDENT",
+      "armKind": "TRIDENT",
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect_spear"
+        }
+      ],
+      "betterCombat": [
+        {
+          "type": "melee_combo",
+          "attack_1": "attack_1",
+          "attack_2": "attack_2",
+          "attack_3": "attack_3"
+        }
+      ]
+    }
+  },
+  "itemSpecific": {
+    "annoyingvillagers:black_fire_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "new_punch_attack"
+        }
+      ]
+    },
+    "annoyingvillagers:demoniac_voltage_reaver": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_mace",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_sideways_start",
+          "looping": "new_mining_sideways_loop",
+          "end": "new_mining_sideways_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "new_punch_attack"
+        }
+      ]
+    },
+    "annoyingvillagers:diamond_attractor_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "new_punch_attack"
+        }
+      ]
+    },
+    "annoyingvillagers:diamond_blaster_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_3"
+        }
+      ]
+    },
+    "annoyingvillagers:dnax_hooked_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_3"
+        }
+      ]
+    },
+    "annoyingvillagers:earth_axe": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_mace",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_sideways_start",
+          "looping": "new_mining_sideways_loop",
+          "end": "new_mining_sideways_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_mace"
+        }
+      ]
+    },
+    "annoyingvillagers:ender_glaive": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_spear",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect_spear"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_1"
+        }
+      ]
+    },
+    "annoyingvillagers:ender_slayer_scythe": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_spear",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect_spear"
+        },
+        {
+          "type": "useItem",
+          "name": "new_punch_attack"
+        }
+      ]
+    },
+    "annoyingvillagers:flanker_hooked_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_3"
+        }
+      ]
+    },
+    "annoyingvillagers:hooked_diamond_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_3"
+        }
+      ]
+    },
+    "annoyingvillagers:hooked_golden_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_3"
+        }
+      ]
+    },
+    "annoyingvillagers:hooked_iron_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_3"
+        }
+      ]
+    },
+    "annoyingvillagers:legendary_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_mace",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_sideways_start",
+          "looping": "new_mining_sideways_loop",
+          "end": "new_mining_sideways_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_critical"
+        }
+      ]
+    },
+    "annoyingvillagers:null_weapon": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "new_punch_attack",
+          "var_2": "new_punch_attack",
+          "var_3": "new_punch_attack",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_punch_start",
+          "looping": "new_punch_loop",
+          "end": "new_punch_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "new_punch_attack"
+        }
+      ]
+    },
+    "annoyingvillagers:obsidian_sledgehammer": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_mace",
+          "var_2": "attack_mace",
+          "var_3": "attack_critical",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_sideways_start",
+          "looping": "new_mining_sideways_loop",
+          "end": "new_mining_sideways_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_mace"
+        }
+      ]
+    },
+    "annoyingvillagers:obsidian_weapon": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "new_punch_attack",
+          "var_2": "new_punch_attack",
+          "var_3": "new_punch_attack",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_punch_start",
+          "looping": "new_punch_loop",
+          "end": "new_punch_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "new_punch_attack"
+        }
+      ]
+    },
+    "annoyingvillagers:red_axe": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_mace",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_sideways_start",
+          "looping": "new_mining_sideways_loop",
+          "end": "new_mining_sideways_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_mace"
+        }
+      ]
+    },
+    "annoyingvillagers:shadow_obsidian_pillar": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "new_punch_attack",
+          "var_2": "new_punch_attack",
+          "var_3": "new_punch_attack",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_punch_start",
+          "looping": "new_punch_loop",
+          "end": "new_punch_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "new_punch_attack"
+        }
+      ]
+    },
+    "annoyingvillagers:shadow_obsidian_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_spear",
+          "var_2": "attack_spear",
+          "var_3": "attack_spear",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect_spear"
+        },
+        {
+          "type": "useItem",
+          "name": "new_punch_attack"
+        }
+      ]
+    },
+    "annoyingvillagers:shadow_obsidian_weapon": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "new_punch_attack",
+          "var_2": "new_punch_attack",
+          "var_3": "new_punch_attack",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_punch_start",
+          "looping": "new_punch_loop",
+          "end": "new_punch_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "new_punch_attack"
+        }
+      ]
+    },
+    "annoyingvillagers:thunder_diamond_blade": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_3"
+        }
+      ]
+    },
+    "annoyingvillagers:woopie_the_sword": {
+      "customAnimation": [
+        {
+          "type": "attack",
+          "var_1": "attack_1",
+          "var_2": "attack_2",
+          "var_3": "attack_3",
+          "critical_hit": "attack_critical"
+        },
+        {
+          "type": "mining_v2",
+          "start": "new_mining_st_start",
+          "looping": "new_mining_st_loop",
+          "end": "new_mining_st_end"
+        },
+        {
+          "type": "inspect",
+          "name": "new_inspect"
+        },
+        {
+          "type": "useItem",
+          "name": "attack_spear"
+        }
+      ]
+    }
+  }
+}

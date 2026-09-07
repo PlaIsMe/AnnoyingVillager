@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.ModList;
 
 @OnlyIn(Dist.CLIENT)
 public final class BetterCombatClientCompat {
@@ -27,5 +28,9 @@ public final class BetterCombatClientCompat {
             case TWO_HANDED -> AnimatedHand.TWO_HANDED;
         };
         animatable.playAttackAnimation(message.animation(), hand, message.swingDurationTicks(), message.upswing());
+        if (entity == minecraft.player && ModList.get().isLoaded("punchy")) {
+            PunchyClientCompat.queueAbility(minecraft.player, message);
+        }
     }
+
 }

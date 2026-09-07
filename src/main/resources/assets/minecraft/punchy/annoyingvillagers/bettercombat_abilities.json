@@ -1,0 +1,8 @@
+{
+  "bettercombat:one_handed_punch": "new_punch_attack",
+  "bettercombat:one_handed_stab": "attack_spear",
+  "bettercombat:one_handed_uppercut_right": "attack_3",
+  "bettercombat:two_handed_slam": "attack_mace",
+  "bettercombat:two_handed_slam_heavy": "attack_critical",
+  "bettercombat:two_handed_slash_horizontal_left": "attack_1"
+}

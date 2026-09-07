@@ -28,6 +28,9 @@
     "PlayerMixin"
   ],
   "client": [
+    "compat.punchy.TridentStateMachineMixin",
+    "compat.punchy.UseItemStateMachineMixin",
+    "compat.punchy.SpearStateMachineMixin",
     "client.ModelPartMixin",
     "client.GroundStuckKnockoutRenderMixin",
     "client.EndFireEntityRenderDispatcherMixin",
