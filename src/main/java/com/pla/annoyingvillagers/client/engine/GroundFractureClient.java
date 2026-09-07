@@ -56,7 +56,7 @@ public final class GroundFractureClient {
         for (int z = zFrom; z <= zTo; z++) {
             for (int x = xFrom; x <= xTo; x += z == zFrom || z == zTo ? 1 : xTo - xFrom) {
                 Vec3 direction = new Vec3(x - center.x + 0.1D, 0.0D, z - center.z);
-                spreadShockwave(level, center, direction, radius, x, z);
+                spreadShockwave(level, center, direction, radius, x, z, noParticle);
             }
         }
 
@@ -70,7 +70,7 @@ public final class GroundFractureClient {
         return true;
     }
 
-    private static void spreadShockwave(ClientLevel level, Vec3 center, Vec3 direction, double length, int edgeX, int edgeZ) {
+    private static void spreadShockwave(ClientLevel level, Vec3 center, Vec3 direction, double length, int edgeX, int edgeZ, boolean noParticle) {
         if (direction.lengthSqr() < 1.0E-8D) return;
 
         Vec3 edgeOfShockwave = center.add(direction.normalize().scale(length));
@@ -142,7 +142,7 @@ public final class GroundFractureClient {
             if (fractureState == null) return;
             fractureState.setFractureInfo(blockPos, blockState, translator, rotator, bouncing, lifeTime);
             level.setBlock(blockPos, fractureState, 0);
-            if (blockState.shouldSpawnParticlesOnBreak()) createParticle(level, blockPos, blockState);
+            if (!noParticle && blockState.shouldSpawnParticlesOnBreak()) createParticle(level, blockPos, blockState);
         }
     }
 

@@ -306,7 +306,7 @@ public class SnakeBladeEntity extends Entity {
         Vec3 targetPos = null;
 
         if (currentTarget != null) {
-            targetPos = targetCenter(currentTarget);
+            targetPos = targetCenterForCreator(currentTarget);
         } else if (this.guardDirection != null) {
             targetPos = DemoniacVoltageReaverItem.guardTargetFor(livingCreator, this.guardDirection);
         }
@@ -454,7 +454,7 @@ public class SnakeBladeEntity extends Entity {
             markTouched(exitPortal);
         }
 
-        Vec3 chainOriginCenter = chainOriginPortal.getPortalCenter();
+        Vec3 chainOriginCenter = portalCenterForCreator(livingCreator, chainOriginPortal);
         Entity closestValid = findClosestValidTargetNear(livingCreator, chainOriginCenter, 14.0D);
         if (closestValid != null) {
             createChainFromPortalExit(chainOriginPortal, closestValid);
@@ -623,6 +623,17 @@ public class SnakeBladeEntity extends Entity {
         return new Vec3(entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ());
     }
 
+    private Vec3 targetCenterForCreator(Entity entity) {
+        Entity creator = this.getCreatorEntity();
+        if (creator instanceof LivingEntity livingCreator && entity instanceof PortalEntity portalEntity) return portalCenterForCreator(livingCreator, portalEntity);
+        return targetCenter(entity);
+    }
+
+    private static Vec3 portalCenterForCreator(LivingEntity creator, PortalEntity portal) {
+        if (creator instanceof Player) return portal.getSnakeBladeAnchor();
+        return portal.getPortalCenter();
+    }
+
     private boolean isValidTarget(LivingEntity creator, Entity entity) {
         if (!(entity instanceof LivingEntity) || entity.isSpectator()) {
             return false;
@@ -697,7 +708,7 @@ public class SnakeBladeEntity extends Entity {
         child.setCreatorEntityUUID(this.getCreatorEntityUUID());
         child.setFromEntityID(this.getId());
         child.setToEntityID(nextTarget.getId());
-        Vec3 nextTargetCenter = targetCenter(nextTarget);
+        Vec3 nextTargetCenter = targetCenterForCreator(nextTarget);
         child.setPos(nextTargetCenter.x, nextTargetCenter.y, nextTargetCenter.z);
         child.setTargetsHit(this.getTargetsHit() + 1);
 
@@ -725,7 +736,7 @@ public class SnakeBladeEntity extends Entity {
         child.setCreatorEntityUUID(this.getCreatorEntityUUID());
         child.setFromEntityID(this.getId());
         child.setToEntityID(nextPortal.getId());
-        Vec3 portalCenter = nextPortal.getPortalCenter();
+        Vec3 portalCenter = targetCenterForCreator(nextPortal);
         child.setPos(portalCenter.x, portalCenter.y, portalCenter.z);
         child.setTargetsHit(this.getTargetsHit() + 1);
 
@@ -758,7 +769,7 @@ public class SnakeBladeEntity extends Entity {
         child.setRenderFromEntityID(exitPortal.getId());
         child.setToEntityID(nextTarget.getId());
 
-        Vec3 nextTargetCenter = targetCenter(nextTarget);
+        Vec3 nextTargetCenter = targetCenterForCreator(nextTarget);
         child.setPos(nextTargetCenter.x, nextTargetCenter.y, nextTargetCenter.z);
 
         child.setTargetsHit(this.getTargetsHit() + 1);
@@ -822,10 +833,12 @@ public class SnakeBladeEntity extends Entity {
 
     public Entity getCreatorEntity() {
         UUID uuid = getCreatorEntityUUID();
-        if (uuid != null && !this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
-            return serverLevel.getEntity(uuid);
+        if (uuid == null) return null;
+        if (this.level() instanceof ServerLevel serverLevel) {
+            Entity creator = serverLevel.getEntity(uuid);
+            if (creator != null) return creator;
         }
-        return null;
+        return this.level().getPlayerByUUID(uuid);
     }
 
     public int getFromEntityID() {

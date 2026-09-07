@@ -12,6 +12,8 @@ import com.pla.annoyingvillagers.network.ClientboundEnderAegisSparkFx;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
+import com.pla.annoyingvillagers.task.DelayedTask;
+import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -38,8 +41,12 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
     private static final double ATTACK_SPEED_MODIFIER = -2.8D;
     public static final String SECOND_FORM_TAG = "SecondForm";
     public static final String AWAKEN_SOUND_PLAYED_TAG = "PlaySound";
-    private static final String LEGACY_SECOND_FORM_TICKS_TAG = "SecondFormTicks";
-    private static final String LEGACY_CHARGE_TAG = "EnderAegisCharge";
+    private static final String SECOND_FORM_UNTIL_TAG = "SecondFormUntil";
+    private static final String CHARGE_TAG = "EnderAegisCharge";
+    private static final String SPECIAL_COOLDOWN_TAG = "AVEnderAegisSpecialCooldown";
+    private static final float MAX_CHARGE = 100.0F;
+    private static final int SECOND_FORM_DURATION_TICKS = 20 * 60;
+    private static final int SPECIAL_COOLDOWN_TICKS = 20;
     private final Multimap<Attribute,AttributeModifier> defaultModifiers;
 
     public EnderAegisItem() {
@@ -69,13 +76,32 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
         return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean(SECOND_FORM_TAG);
     }
 
-    private static void setSecondForm(ItemStack stack,boolean secondForm) {
+    public static void setSecondForm(ItemStack stack,boolean secondForm) {
         if (secondForm) {
             stack.getOrCreateTag().putBoolean(SECOND_FORM_TAG,true);
         } else if (stack.hasTag() && stack.getTag() != null) {
             stack.getTag().remove(SECOND_FORM_TAG);
             stack.getTag().remove(AWAKEN_SOUND_PLAYED_TAG);
         }
+    }
+
+    public static float getCharge(ItemStack stack) {
+        return Mth.clamp(stack.getOrCreateTag().getFloat(CHARGE_TAG), 0.0F, MAX_CHARGE);
+    }
+
+    public static void addBlockedCharge(ItemStack stack, Player player, float blockedDamage) {
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || blockedDamage <= 0.0F || isSecondForm(stack)) return;
+        float charge = Mth.clamp(getCharge(stack) + blockedDamage, 0.0F, MAX_CHARGE);
+        stack.getOrCreateTag().putFloat(CHARGE_TAG, charge);
+        if (charge >= MAX_CHARGE) {
+            setSecondForm(stack, true);
+            stack.getOrCreateTag().putLong(SECOND_FORM_UNTIL_TAG, player.level().getGameTime() + SECOND_FORM_DURATION_TICKS);
+            player.getCooldowns().addCooldown(stack.getItem(), SECOND_FORM_DURATION_TICKS);
+        }
+    }
+
+    public static boolean activateVanillaSpecial(Player player) {
+        return false;
     }
 
     public static void shieldShoot(Level level, Entity entity) {
@@ -163,21 +189,25 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
 
     public void inventoryTick(@NotNull ItemStack itemstack,@NotNull Level level,@NotNull Entity entity,int i,boolean flag) {
         super.inventoryTick(itemstack,level,entity,i,flag);
-        if (!level.isClientSide()) {
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && entity instanceof Player player && !isSecondForm(itemstack) && getCharge(itemstack) >= MAX_CHARGE) {
+            setSecondForm(itemstack, true);
+            itemstack.getOrCreateTag().putLong(SECOND_FORM_UNTIL_TAG, level.getGameTime() + SECOND_FORM_DURATION_TICKS);
+            player.getCooldowns().addCooldown(itemstack.getItem(), SECOND_FORM_DURATION_TICKS);
+        }
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && isSecondForm(itemstack)) {
             CompoundTag tag = itemstack.getTag();
-            if (tag != null) {
-                tag.remove(LEGACY_CHARGE_TAG);
-                tag.remove(LEGACY_SECOND_FORM_TICKS_TAG);
+            long remaining = tag != null && tag.contains(SECOND_FORM_UNTIL_TAG)
+                    ? tag.getLong(SECOND_FORM_UNTIL_TAG) - level.getGameTime()
+                    : 0L;
+            if (remaining <= 0L) {
+                setSecondForm(itemstack, false);
+                itemstack.getOrCreateTag().remove(SECOND_FORM_UNTIL_TAG);
+                itemstack.getOrCreateTag().putFloat(CHARGE_TAG, 0.0F);
+            } else if (entity instanceof Player player && player.getCooldowns().getCooldownPercent(itemstack.getItem(), 0.0F) <= 0.0F) {
+                player.getCooldowns().addCooldown(itemstack.getItem(), (int)Math.min(Integer.MAX_VALUE, remaining));
             }
         }
-        if (flag) {
-            if (isSecondForm(itemstack)) {
-                HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
-            }
-        }
-        if (entity instanceof Player player) {
-            secondFormNbtTag(itemstack, level, player);
-        }
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && flag && isSecondForm(itemstack)) HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
     }
 
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {

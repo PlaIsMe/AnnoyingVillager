@@ -20,13 +20,13 @@ public class AnnoyingVillagersModCreativeTabs {
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(AnnoyingVillagersModItems.HEROBRINE_CLONE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.SHADOW_HEROBRINE_CLONE_SPAWN_EGG.get());
+                        pOutput.accept(AnnoyingVillagersModItems.HEROBRINE_7_SPAWN_EGG.get());
+                        pOutput.accept(AnnoyingVillagersModItems.ARMORED_HEROBRINE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.TRANSPORTER_HEROBRINE_CLONE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.HEROBRINE_GREG_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.LOW_HEROBRINE_CLONE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.LOW_SHADOW_HEROBRINE_CLONE_SPAWN_EGG.get());
-                        pOutput.accept(AnnoyingVillagersModItems.HEROBRINE_7_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.NULL_SPAWN_EGG.get());
-                        pOutput.accept(AnnoyingVillagersModItems.ARMORED_HEROBRINE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.DARK_HEROBRINE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.GLAIVE_HEROBRINE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.REAPER_HEROBRINE_SPAWN_EGG.get());

@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.item.TransporterFragmentItem;
 import com.pla.annoyingvillagers.util.HerobrinePortalUtil;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -34,10 +35,10 @@ public class RiseFromGroundEvent {
 
             double ny = entity.getY() + speed;
             if (ny >= targetY || ticks > max) {
-                HerobrinePortalUtil.moveTransitionEntity(entity, entity.getX(), targetY, entity.getZ());
+                moveTransitionEntity(entity, entity.getX(), targetY, entity.getZ());
                 finishRise(entity);
             } else {
-                HerobrinePortalUtil.moveTransitionEntity(entity, entity.getX(), ny, entity.getZ());
+                moveTransitionEntity(entity, entity.getX(), ny, entity.getZ());
                 tag.putInt(HerobrinePortalUtil.NBT_TICKS, ticks + 1);
             }
             return;
@@ -48,7 +49,7 @@ public class RiseFromGroundEvent {
             int ticks = tag.getInt(HerobrinePortalUtil.NBT_SINK_TICKS);
             int nextTicks = ticks + 1;
 
-            HerobrinePortalUtil.moveTransitionEntity(entity, entity.getX(), entity.getY() - speed, entity.getZ());
+            moveTransitionEntity(entity, entity.getX(), entity.getY() - speed, entity.getZ());
             tag.putInt(HerobrinePortalUtil.NBT_SINK_TICKS, nextTicks);
 
             if (tag.getBoolean(TransporterFragmentItem.NBT_SAVED_TELEPORT_PENDING)
@@ -81,4 +82,9 @@ public class RiseFromGroundEvent {
             lowShadowHerobrineCloneEntity.setInitialSpawn(false);
         }
     }
+    private static void moveTransitionEntity(LivingEntity entity, double x, double y, double z) {
+        if (entity instanceof ServerPlayer serverPlayer) TransporterFragmentItem.movePlayerTransition(serverPlayer, x, y, z);
+        else HerobrinePortalUtil.moveTransitionEntity(entity, x, y, z);
+    }
+
 }

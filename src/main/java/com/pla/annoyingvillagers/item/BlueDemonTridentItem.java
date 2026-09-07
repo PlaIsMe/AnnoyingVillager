@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.clazz.TridentMode;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
 import com.pla.annoyingvillagers.entity.ElectricAreaEntity;
@@ -8,15 +9,21 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
+import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.BlueDemonUtil;
+import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -41,6 +48,12 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
     private static final float RELAUNCH_SPEED = 2.5F;
     public static final String TAG_STORM_ENERGY = "BlueDemonStormEnergy";
     public static final int MAX_STORM_ENERGY = 100;
+    private static final int VANILLA_SPECIAL_COOLDOWN_TICKS = 20 * 60;
+    private static final int VANILLA_FESTIVAL_COOLDOWN_TICKS = 20 * 60 * 5;
+    private static final String VANILLA_ABILITY_COOLDOWN_TAG = "AVBlueDemonAbilityCooldown";
+    private static final int VANILLA_TRIDENT_MIN_CHARGE_TICKS = 10;
+    private static final float VANILLA_TRIDENT_THROW_SPEED = 2.5F;
+    private static final float VANILLA_TRIDENT_INACCURACY = 1.0F;
 
     private static final int ENERGY_METER_STEPS = 18;
     private static final int ENERGY_COLOR = 0x55F7FF;
@@ -221,7 +234,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
 
     private static void spawnMissingFestivalSupportTridents(
             ServerLevel serverLevel,
-            BlueDemonEntity owner,
+            LivingEntity owner,
             int missingCount,
             List<BlueDemonThrownTridentEntity> occupiedTridents,
             boolean strikeWhenFinished
@@ -434,7 +447,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
 
     private static BlueDemonThrownTridentEntity spawnFestivalSupportTrident(
             ServerLevel serverLevel,
-            BlueDemonEntity owner,
+            LivingEntity owner,
             BlockPos standPos,
             boolean strikeWhenFinished
     ) {
@@ -470,24 +483,10 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
     }
 
     public static void summonMissingTridentAndAnimate(ServerLevel serverLevel, LivingEntity owner) {
-        if (!(owner instanceof BlueDemonEntity blueDemon)) {
-            return;
-        }
-
         gatherGroundedTridentsAroundOwner(serverLevel, owner);
-
         List<BlueDemonThrownTridentEntity> existingTridents = new ArrayList<>(getAllOwnerTridents(serverLevel, owner));
-        if (existingTridents.size() >= 20) {
-            return;
-        }
-
-        spawnMissingFestivalSupportTridents(
-                serverLevel,
-                blueDemon,
-                20 - existingTridents.size(),
-                existingTridents,
-                false
-        );
+        if (existingTridents.size() >= 20) return;
+        spawnMissingFestivalSupportTridents(serverLevel, owner, 20 - existingTridents.size(), existingTridents, false);
     }
 
     public static void summonSuperLightningAtGroundedTridents(ServerLevel serverLevel, LivingEntity owner) {
@@ -572,6 +571,116 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
                 owner.level().getMaxBuildHeight(),
                 owner.getZ() + OWNER_HALF_BOX
         );
+    }
+
+    @Override
+    public UseAnim getUseAnimation(@NotNull ItemStack stack) {
+        return UseAnim.SPEAR;
+    }
+
+    @Override
+    public int getUseDuration(@NotNull ItemStack stack) {
+        return 72000;
+    }
+
+    @Override
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled()) return InteractionResultHolder.pass(stack);
+        boolean dualTridents = isBlueDemonTrident(player.getMainHandItem()) && isBlueDemonTrident(player.getOffhandItem());
+        if (hand == InteractionHand.MAIN_HAND && player.isShiftKeyDown() && dualTridents) {
+            ItemStack offhandStack = player.getOffhandItem();
+            if (offhandStack.getDamageValue() >= offhandStack.getMaxDamage() - 1) return InteractionResultHolder.fail(stack);
+            player.startUsingItem(InteractionHand.OFF_HAND);
+            return InteractionResultHolder.consume(stack);
+        }
+        if (hand == InteractionHand.OFF_HAND && isBlueDemonTrident(player.getMainHandItem())) return InteractionResultHolder.pass(stack);
+        if (stack.getDamageValue() >= stack.getMaxDamage() - 1) return InteractionResultHolder.fail(stack);
+        player.startUsingItem(hand);
+        return InteractionResultHolder.consume(stack);
+    }
+
+    @Override
+    public void releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity livingEntity, int timeLeft) {
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || !(livingEntity instanceof Player player)) return;
+        int chargeTicks = getUseDuration(stack) - timeLeft;
+        if (chargeTicks < VANILLA_TRIDENT_MIN_CHARGE_TICKS || level.isClientSide() || !(level instanceof ServerLevel serverLevel)) return;
+        InteractionHand hand = player.getUsedItemHand();
+        if (hand == InteractionHand.OFF_HAND && player.isShiftKeyDown() && isBlueDemonTrident(player.getMainHandItem()) && isBlueDemonTrident(player.getOffhandItem())) {
+            throwVanillaTrident(serverLevel, player, stack, InteractionHand.OFF_HAND, 0.28D);
+            VanillaWeaponAbilityUtil.swingOffHand(player);
+            player.awardStat(Stats.ITEM_USED.get(this));
+            return;
+        }
+        throwVanillaTrident(serverLevel, player, stack, hand, 0.0D);
+        player.awardStat(Stats.ITEM_USED.get(this));
+    }
+
+    private static void throwVanillaTrident(ServerLevel serverLevel, Player player, ItemStack sourceStack, InteractionHand hand, double sideOffset) {
+        BlueDemonThrownTridentEntity trident = new BlueDemonThrownTridentEntity(serverLevel, player, sourceStack.copy());
+        trident.assignSpawnSequence(player);
+        trident.trimOldGroundedTridentsAroundOwnerOnSpawn();
+        double roll = serverLevel.random.nextDouble();
+        if (roll < 0.10D) trident.setMode(TridentMode.LIGHTNING);
+        else if (roll < 0.20D) trident.setMode(TridentMode.EXPLOSION);
+        else trident.setMode(TridentMode.DEFAULT);
+        Vec3 look = player.getLookAngle();
+        Vec3 side = new Vec3(-look.z, 0.0D, look.x);
+        if (side.lengthSqr() > 1.0E-6D) side = side.normalize().scale(sideOffset);
+        trident.setPos(player.getX() + side.x, player.getEyeY() - 0.1D, player.getZ() + side.z);
+        trident.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, VANILLA_TRIDENT_THROW_SPEED, VANILLA_TRIDENT_INACCURACY);
+        serverLevel.addFreshEntity(trident);
+        sourceStack.hurtAndBreak(1, player, brokenPlayer -> brokenPlayer.broadcastBreakEvent(hand));
+        serverLevel.playSound(null, trident, SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
+    }
+
+    public static boolean activateVanillaElectricField(Player player) {
+        if (!canUseDualVanillaSpecial(player)) return false;
+        BlueDemonTridentItem item = (BlueDemonTridentItem)player.getMainHandItem().getItem();
+        if (!VanillaWeaponAbilityUtil.isInternalCooldownReady(player, VANILLA_ABILITY_COOLDOWN_TAG) || !(player.level() instanceof ServerLevel serverLevel)) return false;
+        VanillaWeaponAbilityUtil.swingBothHands(player);
+        VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+        VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
+        new DelayedTask(20) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) spawnDamageZones(serverLevel, player); } };
+        VanillaWeaponAbilityUtil.setInternalCooldown(player, VANILLA_ABILITY_COOLDOWN_TAG, VANILLA_SPECIAL_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(item, VANILLA_SPECIAL_COOLDOWN_TICKS);
+        return true;
+    }
+
+    public static boolean activateVanillaThunderAttack(Player player) {
+        if (!canUseDualVanillaSpecial(player)) return false;
+        BlueDemonTridentItem item = (BlueDemonTridentItem)player.getMainHandItem().getItem();
+        if (!VanillaWeaponAbilityUtil.isInternalCooldownReady(player, VANILLA_ABILITY_COOLDOWN_TAG) || !(player.level() instanceof ServerLevel serverLevel)) return false;
+        VanillaWeaponAbilityUtil.swingBothHands(player);
+        VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+        VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
+        new DelayedTask(20) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) relaunchGroundedTridents(serverLevel, player); } };
+        new DelayedTask(80) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) summonLightningAtGroundedTridents(serverLevel, player); } };
+        VanillaWeaponAbilityUtil.setInternalCooldown(player, VANILLA_ABILITY_COOLDOWN_TAG, VANILLA_SPECIAL_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(item, VANILLA_SPECIAL_COOLDOWN_TICKS);
+        return true;
+    }
+
+    public static boolean activateVanillaFestival(Player player) {
+        if (!canUseDualVanillaSpecial(player)) return false;
+        ItemStack mainHand = player.getMainHandItem();
+        ItemStack offHand = player.getOffhandItem();
+        BlueDemonTridentItem item = (BlueDemonTridentItem)mainHand.getItem();
+        if (!isFullyCharged(mainHand) || !isFullyCharged(offHand) || !VanillaWeaponAbilityUtil.isInternalCooldownReady(player, VANILLA_ABILITY_COOLDOWN_TAG) || !(player.level() instanceof ServerLevel serverLevel)) return false;
+        VanillaWeaponAbilityUtil.swingBothHands(player);
+        VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+        VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
+        new DelayedTask(6) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) summonMissingTridentAndAnimate(serverLevel, player); } };
+        new DelayedTask(10) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) { spawnDamageZones(serverLevel, player); relaunchGroundedTridents(serverLevel, player, true); } } };
+        new DelayedTask(24) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) relaunchGroundedTridents(serverLevel, player, true); } };
+        new DelayedTask(70) { @Override public void run() { if (!player.isAlive() || player.isRemoved()) return; summonSuperLightningAtGroundedTridents(serverLevel, player); setStormEnergy(mainHand, 0); setStormEnergy(offHand, 0); } };
+        VanillaWeaponAbilityUtil.setInternalCooldown(player, VANILLA_ABILITY_COOLDOWN_TAG, VANILLA_FESTIVAL_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(item, VANILLA_FESTIVAL_COOLDOWN_TICKS);
+        return true;
+    }
+
+    private static boolean canUseDualVanillaSpecial(Player player) {
+        return VanillaWeaponAbilityUtil.abilitiesEnabled() && !player.level().isClientSide() && isBlueDemonTrident(player.getMainHandItem()) && isBlueDemonTrident(player.getOffhandItem());
     }
 
     public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {

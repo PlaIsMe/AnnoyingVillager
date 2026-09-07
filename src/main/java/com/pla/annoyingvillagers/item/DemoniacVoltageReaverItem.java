@@ -19,6 +19,7 @@ import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.RigPoseUtil;
+import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -26,6 +27,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
@@ -43,6 +46,10 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
     private static final String TAG_SNAKE_PROFILE_ATTACK_LOCK = "SnakeBladeProfileAttackLock";
     private static final double TARGET_SEARCH_RADIUS = 16.0D;
     private static final double PORTAL_TARGET_SEARCH_RADIUS = 64.0D;
+    private static final String VANILLA_AWAKEN_EXPIRES_TAG = "AVDemoniacVoltageReaverAwakenExpires";
+    private static final int VANILLA_AWAKEN_DURATION_TICKS = 20 * 30;
+    private static final String VANILLA_RECOVERY_UNTIL_TAG = "AVDemoniacVoltageReaverRecoveryUntil";
+    private static final int VANILLA_RECOVERY_DURATION_TICKS = 20 * 60;
 
     public DemoniacVoltageReaverItem() {
         super(new Tier() {
@@ -410,13 +417,18 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
                             if (stack.hasFoil()) {
                                 snakeBladeEntity.setEnchanted(true);
                             }
-                            snakeBladeEntity.copyPosition(attacker);
-                            level.addFreshEntity(snakeBladeEntity);
+                            if (attacker instanceof Player) {
+                                snakeBladeEntity.copyPosition(attacker);
+                            } else {
+                                Vec3 spawn = getToolTipPos(attacker, 1.0F, 1.0F);
+                                if (spawn == null) spawn = attacker.getEyePosition().add(attacker.getLookAngle().scale(0.8D));
+                                snakeBladeEntity.setPos(spawn.x, spawn.y, spawn.z);
+                            }
                             snakeBladeEntity.setCreatorEntityUUID(attacker.getUUID());
                             snakeBladeEntity.setFromEntityID(attacker.getId());
                             snakeBladeEntity.setToEntityID(closestValid.getId());
-                            snakeBladeEntity.copyPosition(attacker);
                             snakeBladeEntity.setProgress(0.0F);
+                            level.addFreshEntity(snakeBladeEntity);
                             setLastFragment(attacker, snakeBladeEntity);
                             return true;
                         }
@@ -549,6 +561,18 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
 //        );
 
 //        Add a fallback for vanilla weapon vec position
+        if (ent instanceof Player player) {
+            float bodyYaw = Mth.lerp(partialTicks, player.yBodyRotO, player.yBodyRot) * Mth.DEG_TO_RAD;
+            double sinYaw = Mth.sin(bodyYaw);
+            double cosYaw = Mth.cos(bodyYaw);
+            double x = Mth.lerp((double)partialTicks, player.xo, player.getX());
+            double y = Mth.lerp((double)partialTicks, player.yo, player.getY());
+            double z = Mth.lerp((double)partialTicks, player.zo, player.getZ());
+            double crouch = player.isCrouching() ? -0.1875D : 0.0D;
+            Vec3 hand = new Vec3(x - cosYaw * 0.35D - sinYaw * 0.55D, y + player.getEyeHeight() - 0.45D + crouch, z - sinYaw * 0.35D + cosYaw * 0.55D);
+            Vec3 forward = new Vec3(-sinYaw, 0.0D, cosYaw);
+            return hand.add(forward.scale(Math.max(0.0F, handToTip)));
+        }
         if (ent instanceof Mob mob) {
             RigAnimationId active = RigAnimationController.getActiveAnimationId(mob);
             int startTick = RigAnimationController.getActiveAnimationStartTick(mob);
@@ -562,6 +586,60 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
         }
         if (!(ent instanceof LivingEntity)) return null;
         return CommonUtil.getVanillaSwordOrBodyPosition(ent, partialTicks);
+    }
+
+    public static boolean isVanillaAwakened(ItemStack stack, Level level) {
+        return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean("SecondForm") && level.getGameTime() < stack.getTag().getLong(VANILLA_AWAKEN_EXPIRES_TAG);
+    }
+
+    public static boolean isVanillaRecovering(ItemStack stack, Level level) {
+        return stack.hasTag() && stack.getTag() != null && stack.getTag().contains(VANILLA_RECOVERY_UNTIL_TAG) && level.getGameTime() < stack.getTag().getLong(VANILLA_RECOVERY_UNTIL_TAG);
+    }
+
+    public static boolean activateVanillaSpecial(Player player) {
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide()) return false;
+        ItemStack stack = player.getMainHandItem();
+        if (!(stack.getItem() instanceof DemoniacVoltageReaverItem) || isVanillaAwakened(stack, player.level()) || isVanillaRecovering(stack, player.level())) return false;
+        stack.getOrCreateTag().putBoolean("SecondForm", true);
+        stack.getOrCreateTag().putLong(VANILLA_AWAKEN_EXPIRES_TAG, player.level().getGameTime() + VANILLA_AWAKEN_DURATION_TICKS);
+        VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+        VanillaWeaponAbilityUtil.swingMainHand(player);
+        HerobrineUtil.spawnEliteEffect(player.level(), player.getX(), player.getY(), player.getZ(), player);
+        player.getCooldowns().addCooldown(stack.getItem(), VANILLA_AWAKEN_DURATION_TICKS);
+        return true;
+    }
+
+    public static boolean activateVanillaNormalAttack(Player player) {
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide()) return false;
+        ItemStack stack = player.getMainHandItem();
+        if (!(stack.getItem() instanceof DemoniacVoltageReaverItem) || !isVanillaAwakened(stack, player.level())) return false;
+        if (!tryStartSnakeAnimation(stack, player, false)) return true;
+        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+        return true;
+    }
+
+    @Override
+    public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
+        boolean result = super.hurtEnemy(stack, target, attacker);
+        if (result && attacker instanceof Player player && !attacker.level().isClientSide() && VanillaWeaponAbilityUtil.abilitiesEnabled() && isVanillaAwakened(stack, attacker.level())) {
+            tryStartSnakeAnimation(stack, attacker, false);
+            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+        }
+        return result;
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || !isVanillaAwakened(stack, level)) return InteractionResultHolder.pass(stack);
+        if (!level.isClientSide()) {
+            tryStartSnakeAnimation(stack, player, true);
+            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+        }
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
@@ -590,10 +668,28 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
 
     public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
         super.inventoryTick(itemstack, level, entity, i, flag);
-        if (flag && entity instanceof Player player) {
-            secondFormNbtTag(itemstack, level, player);
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && itemstack.hasTag() && itemstack.getTag() != null && itemstack.getTag().getBoolean("SecondForm") && (!itemstack.getTag().contains(VANILLA_AWAKEN_EXPIRES_TAG) || level.getGameTime() >= itemstack.getTag().getLong(VANILLA_AWAKEN_EXPIRES_TAG))) {
+            itemstack.getTag().remove("SecondForm");
+            itemstack.getTag().remove(VANILLA_AWAKEN_EXPIRES_TAG);
+            itemstack.getOrCreateTag().putLong(VANILLA_RECOVERY_UNTIL_TAG, level.getGameTime() + VANILLA_RECOVERY_DURATION_TICKS);
+            if (entity instanceof Player player) player.getCooldowns().addCooldown(itemstack.getItem(), VANILLA_RECOVERY_DURATION_TICKS);
+            clearSnakeAnimation(itemstack);
+            if (entity instanceof Player player) releaseSnakeProfileAttackLock(player);
         }
-        if (entity instanceof Player player && !flag && itemstack.hasTag() && itemstack.getTag().getBoolean("SnakeAnimation")) {
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && entity instanceof Player player && itemstack.hasTag() && itemstack.getTag() != null) {
+            long cooldownUntil = isVanillaAwakened(itemstack, level)
+                    ? itemstack.getTag().getLong(VANILLA_AWAKEN_EXPIRES_TAG)
+                    : itemstack.getTag().getLong(VANILLA_RECOVERY_UNTIL_TAG);
+            long remaining = cooldownUntil - level.getGameTime();
+            if (remaining > 0L && player.getCooldowns().getCooldownPercent(itemstack.getItem(), 0.0F) <= 0.0F) {
+                player.getCooldowns().addCooldown(itemstack.getItem(), (int)Math.min(Integer.MAX_VALUE, remaining));
+            }
+            if (!isVanillaAwakened(itemstack, level) && itemstack.getTag().contains(VANILLA_RECOVERY_UNTIL_TAG) && remaining <= 0L) {
+                itemstack.getTag().remove(VANILLA_RECOVERY_UNTIL_TAG);
+            }
+        }
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && flag && entity instanceof Player player && isVanillaAwakened(itemstack, level)) HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && entity instanceof Player player && !flag && itemstack.hasTag() && itemstack.getTag().getBoolean("SnakeAnimation")) {
             clearSnakeAnimation(itemstack);
             releaseSnakeProfileAttackLock(player);
         }

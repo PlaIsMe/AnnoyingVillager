@@ -278,6 +278,8 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
 
     private Vec3 getPositionOfPriorMob(SnakeBladeEntity snakeBladeEntity, Entity fromEntity, float partialTicks) {
         if (fromEntity instanceof com.pla.annoyingvillagers.entity.PortalEntity portalEntity) {
+            Entity creator = snakeBladeEntity.getCreatorEntity();
+            if (creator instanceof Player) return portalEntity.getSnakeBladeAnchor();
             return portalEntity.getPortalCenter();
         }
 

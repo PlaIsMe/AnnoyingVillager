@@ -1140,11 +1140,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
     public void die(@NotNull DamageSource source) {
         if (this.level() instanceof ServerLevel) {
             if (this.summoner != null && this.summoner instanceof Player player && player.isAlive()) {
-                player.getCooldowns().addCooldown(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get(), 3600);
-                if (player.getPersistentData().contains("DragonUUID")
-                        && this.getUUID().equals(player.getPersistentData().getUUID("DragonUUID"))) {
-                    player.getPersistentData().remove("DragonUUID");
-                }
+                EnderSlayerScytheItem.onSummonedDragonDeath(player, this.getUUID());
             }
         }
         super.die(source);

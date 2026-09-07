@@ -120,7 +120,10 @@ public class HerobrinePortalUtil {
         entity.setDeltaMovement(Vec3.ZERO);
         entity.fallDistance = 0.0F;
         if (entity instanceof ServerPlayer serverPlayer) {
-            serverPlayer.teleportTo(x, y, z);
+            serverPlayer.setPos(x, y, z);
+            var tag = serverPlayer.getPersistentData();
+            int transitionTicks = tag.getBoolean(NBT_RISING) ? tag.getInt(NBT_TICKS) : tag.getInt(NBT_SINK_TICKS);
+            if (transitionTicks == 0 || transitionTicks % 4 == 0) serverPlayer.connection.teleport(x, y, z, serverPlayer.getYRot(), serverPlayer.getXRot());
         } else {
             entity.setPos(x, y, z);
         }

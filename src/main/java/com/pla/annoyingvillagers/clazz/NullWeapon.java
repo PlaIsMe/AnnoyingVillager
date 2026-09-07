@@ -139,6 +139,16 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         this.spinfor5seconds();
     }
 
+    public void releaseForTicks(@Nullable LivingEntity target, int ticks) {
+        LivingEntity releaseTarget = this.isValidReleaseTarget(target) ? target : this.findReleaseTarget();
+        this.setReleaseTarget(releaseTarget);
+        this.releaseCooldown = Math.max(1, ticks);
+        this.weaponAttackCooldown = 0;
+        this.released = true;
+        if (releaseTarget != null) this.teleportRandomlyAround(releaseTarget, 4.0D, -2.0D, 2.0D);
+        this.spinfor5seconds();
+    }
+
     @Nullable
     public LivingEntity findReleaseTarget() {
         LivingEntity target = this.getReleaseTarget();
@@ -163,6 +173,23 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         return getNearestLivingEntity(this.level(), this, 18.0D);
     }
 
+
+    @Nullable
+    private LivingEntity getPlayerAssistTarget() {
+        if (this.player == null || !this.player.isAlive()) return null;
+        LivingEntity target = this.player.getLastHurtMob();
+        if (!this.isValidReleaseTarget(target)) target = this.player.getLastHurtByMob();
+        return this.isValidReleaseTarget(target) ? target : null;
+    }
+
+    public boolean hasPlayerAssistTarget() {
+        return this.getPlayerAssistTarget() != null;
+    }
+
+    @Nullable
+    private LivingEntity getCombatTarget() {
+        return this.released ? this.getReleaseTarget() : null;
+    }
     private boolean isValidReleaseTarget(@Nullable LivingEntity target) {
         if (target == null || !target.isAlive() || target.isRemoved() || target == this.nullEntity || target == this.player || target instanceof NullWeapon) return false;
         if (this.nullEntity != null && (target.isAlliedTo(this.nullEntity) || this.nullEntity.isAlliedTo(target))) return false;
@@ -349,14 +376,14 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
 
             @Override
             public boolean canUse() {
-                LivingEntity target = NullWeapon.this.getReleaseTarget();
-                return NullWeapon.this.released && NullWeapon.this.isValidReleaseTarget(target);
+                LivingEntity target = NullWeapon.this.getCombatTarget();
+                return NullWeapon.this.isValidReleaseTarget(target);
             }
 
             @Override
             public boolean canContinueToUse() {
-                LivingEntity target = NullWeapon.this.getReleaseTarget();
-                return NullWeapon.this.released && NullWeapon.this.isValidReleaseTarget(target);
+                LivingEntity target = NullWeapon.this.getCombatTarget();
+                return NullWeapon.this.isValidReleaseTarget(target);
             }
 
             @Override
@@ -371,8 +398,8 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
 
             @Override
             public void tick() {
-                LivingEntity target = NullWeapon.this.getReleaseTarget();
-                if (!NullWeapon.this.isValidReleaseTarget(target)) {
+                LivingEntity target = NullWeapon.this.getCombatTarget();
+                if (!NullWeapon.this.isValidReleaseTarget(target) && NullWeapon.this.released) {
                     target = NullWeapon.this.findReleaseTarget();
                     NullWeapon.this.setReleaseTarget(target);
                 }
@@ -403,7 +430,7 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
             }
 
             private void approachTarget() {
-                LivingEntity target = NullWeapon.this.getReleaseTarget();
+                LivingEntity target = NullWeapon.this.getCombatTarget();
                 if (target == null) return;
 
                 Vec3 targetPosition = target.getEyePosition(1.0F);
@@ -515,6 +542,7 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
 
     @Override
     public boolean doHurtTarget(@NotNull Entity pEntity) {
+        if (this.player != null && !this.released) return false;
         if (pEntity instanceof Player hurtPlayer && this.playerUUID != null && this.playerUUID.equals(hurtPlayer.getUUID())) {
             return false;
         }
@@ -543,6 +571,7 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
                 }
                 this.doEnchantDamageEffects(this, pEntity);
                 this.setLastHurtMob(pEntity);
+                com.pla.annoyingvillagers.item.NullWeaponItem.onOwnedWeaponHit(this.player);
             }
 
             return flag;
@@ -658,6 +687,10 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
             if (player == null && playerUUID != null) {
                 this.player = level().getPlayerByUUID(playerUUID);
             }
+            if (player != null && player.isAlive() && !this.reconcilePlayerTracking()) {
+                this.discard();
+                return;
+            }
             if (player != null && !player.isAlive()) {
                 this.remove(RemovalReason.KILLED);
             }
@@ -689,6 +722,10 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         }
 
         if (!this.level().isClientSide) this.correctExcessiveVerticalDrift();
+
+        // Player-owned weapons no longer have Epic Fight's skill tick to drive the legacy
+        // ten-tick teleport. Null-owned weapons are still driven by NullEntity itself.
+        if (!this.level().isClientSide && this.player != null && this.tickCount % 10 == 0) this.processTeleportByPlayer();
 
         if (this.releaseCooldown > 0) this.releaseCooldown--;
         if (this.releaseCooldown == 0 && this.released) this.stopRelease();
@@ -738,6 +775,7 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         if (this.player == null || !this.player.isAlive()) return;
 
         if (!this.released) {
+            this.setTarget(null);
             this.teleportRandomlyAround(this.player, 4.0D, -2.0D, 2.0D);
             return;
         }
@@ -779,27 +817,36 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         spinfor5seconds();
     }
 
+    private String getPlayerTrackingKey() {
+        return switch (this.weapon) {
+            case "sword" -> "NullSwordUUID";
+            case "pickaxe" -> "NullPickaxeUUID";
+            case "axe" -> "NullAxeUUID";
+            case "hoe" -> "NullHoeUUID";
+            default -> "NullShovelUUID";
+        };
+    }
+
+    private boolean reconcilePlayerTracking() {
+        if (this.player == null || this.playerUUID == null) return true;
+        String trackingKey = this.getPlayerTrackingKey();
+        CompoundTag playerData = this.player.getPersistentData();
+        if (!playerData.hasUUID(trackingKey)) {
+            playerData.putUUID(trackingKey, this.getUUID());
+            return true;
+        }
+        return this.getUUID().equals(playerData.getUUID(trackingKey));
+    }
+
     @Override
     public void remove(@NotNull RemovalReason pReason) {
         if (this.spinning && !this.level().isClientSide) this.setSpinning(false);
         if (this.level() instanceof ServerLevel serverLevel) {
             if (this.player != null) {
-                switch (this.weapon) {
-                    case "sword" -> {
-                        this.player.getPersistentData().remove("NullSwordUUID");
-                    }
-                    case "pickaxe" -> {
-                        this.player.getPersistentData().remove("NullPickaxeUUID");
-                    }
-                    case "axe" -> {
-                        this.player.getPersistentData().remove("NullAxeUUID");
-                    }
-                    case "hoe" -> {
-                        this.player.getPersistentData().remove("NullHoeUUID");
-                    }
-                    default -> {
-                        this.player.getPersistentData().remove("NullShovelUUID");
-                    }
+                String trackingKey = this.getPlayerTrackingKey();
+                CompoundTag playerData = this.player.getPersistentData();
+                if (playerData.hasUUID(trackingKey) && this.getUUID().equals(playerData.getUUID(trackingKey))) {
+                    playerData.remove(trackingKey);
                 }
             } else {
                 var item = new ItemEntity(serverLevel, this.getX(), this.getY(), this.getZ(), this.getMainHandItem());

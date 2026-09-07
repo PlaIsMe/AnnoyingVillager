@@ -3,6 +3,9 @@ package com.pla.annoyingvillagers.event;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.EnderAegisItem;
+import com.pla.annoyingvillagers.item.ShadowObsidianPillarItem;
+import com.pla.annoyingvillagers.item.ShadowObsidianSwordItem;
+import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -42,6 +45,8 @@ public class ModModelPredicateProvider {
             );
             addShieldPropertyOverrides(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID,"blocking"),(stack,world,entity,seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F,AnnoyingVillagersModItems.ENDER_AEGIS.get());
             addShieldPropertyOverrides(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID,"second_form"),(stack,world,entity,seed) -> EnderAegisItem.isSecondForm(stack) ? 1.0F : 0.0F,AnnoyingVillagersModItems.ENDER_AEGIS.get());
+            if (VanillaWeaponAbilityUtil.abilitiesEnabled()) ItemProperties.register(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_PILLAR.get(), ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "burst"), (stack, world, entity, seed) -> ShadowObsidianPillarItem.isBurst(stack) ? 1.0F : 0.0F);
+            if (VanillaWeaponAbilityUtil.abilitiesEnabled()) ItemProperties.register(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get(), ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "straight_form"), (stack, world, entity, seed) -> ShadowObsidianSwordItem.isStraightForm(stack) ? 1.0F : 0.0F);
         });
     }
 

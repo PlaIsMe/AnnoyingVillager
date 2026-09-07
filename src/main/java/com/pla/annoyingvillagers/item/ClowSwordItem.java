@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.item;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
+import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -28,7 +29,7 @@ public class ClowSwordItem extends SwordItem implements RigCombatProfileProvider
 
     @Override
     public boolean hurtEnemy(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
-        if (new Random().nextFloat() < 0.2F) {
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !pAttacker.level().isClientSide() && new Random().nextFloat() < 0.1F) {
             pTarget.spawnAtLocation(new ItemStack(Items.LAPIS_LAZULI, new Random().nextInt(1, 3)));
         }
         return super.hurtEnemy(pStack, pTarget, pAttacker);

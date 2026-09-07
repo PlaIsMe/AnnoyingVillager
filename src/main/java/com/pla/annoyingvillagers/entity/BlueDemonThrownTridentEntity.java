@@ -640,10 +640,8 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
     }
 
     protected void spawnTridentExplosion(ServerLevel serverLevel, BlockPos pos, Entity hitTarget) {
-        Entity owner = this.getOwner();
-
         serverLevel.explode(
-                owner,
+                this,
                 this.getX(),
                 this.getY(),
                 this.getZ(),

@@ -6,6 +6,8 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
+import com.pla.annoyingvillagers.network.ClientboundPlayerGroundTransitionPosition;
+import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -13,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -87,6 +90,7 @@ public class TransporterFragmentItem extends Item {
     private static final String TAG_TELEPORT_TARGET_Y = "TransporterFragmentTargetY";
     private static final String TAG_TELEPORT_TARGET_Z = "TransporterFragmentTargetZ";
     private static final String TAG_TELEPORT_ENTITIES = "TransporterFragmentEntities";
+    private static final String TAG_TELEPORT_EXECUTE_TICK = "TransporterFragmentExecuteTick";
     private static final String TAG_ENTITY_COUNT = "Count";
     private static final String TAG_ENTITY_UUID = "UUID";
     private static final String TAG_ENTITY_DX = "DX";
@@ -118,84 +122,60 @@ public class TransporterFragmentItem extends Item {
     }
 
     public static UseResult tryUseSpecialAttack(Player player) {
-        return tryUseSpecialAttack(player, null);
+        return UseResult.missed();
     }
 
     public static UseResult tryUseSpecialAttack(Player player, Vec3 crosshairTarget) {
-        Item transporterFragment = AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get();
-        UseMode mode = getUseMode(player, transporterFragment);
-        if (mode == UseMode.NONE) {
-            return UseResult.missed();
-        }
-
-        if (player.getCooldowns().isOnCooldown(transporterFragment)) {
-            return UseResult.consumed(mode, false);
-        }
-
-        ItemStack stack = getStackForMode(player, mode);
-        int requestedPortals = isSixPortalMode(mode) ? PORTAL_COUNT : SINGLE_PORTAL_DURABILITY_COST;
-        if (!hasDurability(stack, requestedPortals)) {
-            return UseResult.consumed(mode, false);
-        }
-
-        boolean activated = false;
-        if (player.level() instanceof ServerLevel serverLevel) {
-            List<PortalEntity> activePortals = findOwnedActivePortals(serverLevel, player);
-            if (activePortals.size() + requestedPortals > MAX_ACTIVE_PORTALS_PER_OWNER) {
-                return UseResult.consumed(mode, false);
-            }
-
-            int spawned = isSixPortalMode(mode)
-                    ? spawnPortalPairs(serverLevel, player)
-                    : spawnLookPortal(serverLevel, player, activePortals, crosshairTarget);
-            if (spawned > 0) {
-                damageStack(player, stack, mode == UseMode.OFF_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND, spawned);
-                player.getCooldowns().addCooldown(transporterFragment, COOLDOWN_TICKS);
-                activated = true;
-            }
-        }
-
-        return UseResult.consumed(mode, activated);
+        return UseResult.missed();
     }
 
     public static UseResult tryUseHeldSpecialAttack(Player player) {
+        return tryUseHeldSpecialAttack(player, null);
+    }
+
+    public static UseResult tryUseHeldSpecialAttack(Player player, Vec3 crosshairTarget) {
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled()) return UseResult.missed();
+
         Item transporterFragment = AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get();
-        ItemStack stack = player.getMainHandItem();
-        if (!stack.is(transporterFragment)) {
-            return UseResult.missed();
+        boolean mainHand = player.getMainHandItem().is(transporterFragment);
+        boolean offHand = player.getOffhandItem().is(transporterFragment);
+        if (!mainHand && !offHand) return UseResult.missed();
+
+        if (mainHand) {
+            ItemStack stack = player.getMainHandItem();
+            UseMode mode = UseMode.MAIN_HAND;
+            if (player.getCooldowns().isOnCooldown(transporterFragment)
+                    || player.getPersistentData().getBoolean(NBT_SAVED_TELEPORT_PENDING)
+                    || player.getPersistentData().getBoolean(HerobrinePortalUtil.NBT_RISING)
+                    || player.getPersistentData().getBoolean(HerobrinePortalUtil.NBT_SINKING)
+                    || !hasSavedLocation(stack)
+                    || !hasDurability(stack, SAVED_TELEPORT_DURABILITY_COST)) {
+                return UseResult.consumed(mode, false);
+            }
+            if (!(player.level() instanceof ServerLevel serverLevel)) return UseResult.consumed(mode, false);
+
+            CompoundTag savedLocation = stack.getTag().getCompound(TAG_SAVED_LOCATION);
+            if (!savedLocation.getString(TAG_DIMENSION).equals(serverLevel.dimension().location().toString())) return UseResult.consumed(mode, false);
+            Vec3 target = new Vec3(savedLocation.getDouble(TAG_X), savedLocation.getDouble(TAG_Y), savedLocation.getDouble(TAG_Z));
+            if (!serverLevel.getWorldBorder().isWithinBounds(BlockPos.containing(target))) return UseResult.consumed(mode, false);
+
+            beginSavedTeleport(serverLevel, player, target);
+            damageStack(player, stack, InteractionHand.MAIN_HAND, SAVED_TELEPORT_DURABILITY_COST);
+            player.getCooldowns().addCooldown(transporterFragment, COOLDOWN_TICKS);
+            return UseResult.consumed(mode, true);
         }
 
-        UseMode mode = UseMode.MAIN_HAND;
-        if (player.getCooldowns().isOnCooldown(transporterFragment)
-                || player.getPersistentData().getBoolean(NBT_SAVED_TELEPORT_PENDING)
-                || player.getPersistentData().getBoolean(HerobrinePortalUtil.NBT_RISING)
-                || player.getPersistentData().getBoolean(HerobrinePortalUtil.NBT_SINKING)
-                || !hasSavedLocation(stack)
-                || !hasDurability(stack, SAVED_TELEPORT_DURABILITY_COST)) {
-            return UseResult.consumed(mode, false);
-        }
+        ItemStack stack = player.getOffhandItem();
+        UseMode mode = UseMode.OFF_HAND;
+        if (player.getCooldowns().isOnCooldown(transporterFragment) || !hasDurability(stack, SINGLE_PORTAL_DURABILITY_COST)) return UseResult.consumed(mode, false);
+        if (!(player.level() instanceof ServerLevel serverLevel)) return UseResult.consumed(mode, false);
 
-        if (!(player.level() instanceof ServerLevel serverLevel)) {
-            return UseResult.consumed(mode, false);
-        }
+        List<PortalEntity> activePortals = findOwnedActivePortals(serverLevel, player);
+        if (activePortals.size() + 1 > MAX_ACTIVE_PORTALS_PER_OWNER) return UseResult.consumed(mode, false);
+        int spawned = spawnLookPortal(serverLevel, player, activePortals, crosshairTarget);
+        if (spawned <= 0) return UseResult.consumed(mode, false);
 
-        CompoundTag savedLocation = stack.getTag().getCompound(TAG_SAVED_LOCATION);
-        String savedDimension = savedLocation.getString(TAG_DIMENSION);
-        if (!savedDimension.equals(serverLevel.dimension().location().toString())) {
-            return UseResult.consumed(mode, false);
-        }
-
-        Vec3 target = new Vec3(
-                savedLocation.getDouble(TAG_X),
-                savedLocation.getDouble(TAG_Y),
-                savedLocation.getDouble(TAG_Z)
-        );
-        if (!serverLevel.getWorldBorder().isWithinBounds(BlockPos.containing(target))) {
-            return UseResult.consumed(mode, false);
-        }
-
-        beginSavedTeleport(serverLevel, player, target);
-        damageStack(player, stack, InteractionHand.MAIN_HAND, SAVED_TELEPORT_DURABILITY_COST);
+        damageStack(player, stack, InteractionHand.OFF_HAND, spawned);
         player.getCooldowns().addCooldown(transporterFragment, COOLDOWN_TICKS);
         return UseResult.consumed(mode, true);
     }
@@ -349,10 +329,16 @@ public class TransporterFragmentItem extends Item {
 
         level.playSound(null, player.blockPosition(), AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
         for (Entity entity : teleportEntities) {
-            if (entity instanceof LivingEntity livingEntity) {
-                HerobrinePortalUtil.sinkIntoGround(level, livingEntity, SAVED_TELEPORT_SINK_SPEED);
-            }
+            if (entity instanceof LivingEntity livingEntity) HerobrinePortalUtil.sinkIntoGround(level, livingEntity, SAVED_TELEPORT_SINK_SPEED);
         }
+
+    }
+
+    public static void tickPendingSavedTeleport(Player player) {
+        if (player.level().isClientSide()) return;
+        CompoundTag tag = player.getPersistentData();
+        if (!tag.getBoolean(NBT_SAVED_TELEPORT_PENDING)) return;
+        if (!player.isAlive() || player.isRemoved()) clearSavedTeleportState(tag);
     }
 
     private static List<Entity> collectTeleportEntities(ServerLevel level, Player player) {
@@ -406,16 +392,27 @@ public class TransporterFragmentItem extends Item {
 
         sendGroundPortalFx(caster, target);
         level.playSound(null, BlockPos.containing(target), AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+
+        Vec3 casterDestination = target;
+        UUID casterUuid = caster.getUUID();
+        for (int i = 0; i < count; i++) {
+            CompoundTag entityTag = entitiesTag.getCompound(String.valueOf(i));
+            if (!entityTag.hasUUID(TAG_ENTITY_UUID) || !casterUuid.equals(entityTag.getUUID(TAG_ENTITY_UUID))) continue;
+            casterDestination = target.add(entityTag.getDouble(TAG_ENTITY_DX), entityTag.getDouble(TAG_ENTITY_DY), entityTag.getDouble(TAG_ENTITY_DZ));
+            break;
+        }
+        teleportEntityWithRise(level, caster, casterDestination);
+
         for (int i = 0; i < count; i++) {
             CompoundTag entityTag = entitiesTag.getCompound(String.valueOf(i));
             if (!entityTag.hasUUID(TAG_ENTITY_UUID)) {
                 continue;
             }
 
-            Entity entity = level.getEntity(entityTag.getUUID(TAG_ENTITY_UUID));
-            if (entity == null || entity.isRemoved()) {
-                continue;
-            }
+            UUID entityUuid = entityTag.getUUID(TAG_ENTITY_UUID);
+            if (casterUuid.equals(entityUuid)) continue;
+            Entity entity = level.getEntity(entityUuid);
+            if (entity == null || entity.isRemoved()) continue;
 
             Vec3 destination = target.add(
                     entityTag.getDouble(TAG_ENTITY_DX),
@@ -431,15 +428,47 @@ public class TransporterFragmentItem extends Item {
     private static void teleportEntityWithRise(ServerLevel level, Entity entity, Vec3 destination) {
         entity.setDeltaMovement(Vec3.ZERO);
         if (entity instanceof ServerPlayer serverPlayer) {
-            serverPlayer.teleportTo(destination.x, destination.y, destination.z);
-        } else {
-            entity.teleportTo(destination.x, destination.y, destination.z);
+            startPlayerRise(level, serverPlayer, destination);
+            return;
         }
-
+        entity.teleportTo(destination.x, destination.y, destination.z);
         if (entity instanceof LivingEntity livingEntity) {
             clearSinkState(livingEntity);
+            HerobrinePortalUtil.finishGroundTransition(livingEntity);
             HerobrinePortalUtil.spawnRising(level, livingEntity, destination.x, destination.z, SAVED_TELEPORT_RISE_SPEED);
         }
+    }
+
+    private static void startPlayerRise(ServerLevel level, ServerPlayer player, Vec3 destination) {
+        clearSinkState(player);
+        HerobrinePortalUtil.finishGroundTransition(player);
+        movePlayerTransition(player, destination.x, destination.y - 2.0D, destination.z);
+        player.noPhysics = true;
+        player.setNoGravity(true);
+        player.setInvulnerable(true);
+        CompoundTag tag = player.getPersistentData();
+        tag.putBoolean(HerobrinePortalUtil.NBT_RISING, true);
+        tag.putDouble(HerobrinePortalUtil.NBT_TARGET_Y, destination.y + 0.02D);
+        tag.putDouble(HerobrinePortalUtil.NBT_SPEED, SAVED_TELEPORT_RISE_SPEED);
+        tag.putInt(HerobrinePortalUtil.NBT_TICKS, 0);
+        tag.putInt(HerobrinePortalUtil.NBT_MAX_TICKS, 20 * 5);
+        level.playSound(null, player.blockPosition(), SoundEvents.SOUL_ESCAPE, SoundSource.PLAYERS, 0.6F, 0.8F + level.random.nextFloat() * 0.2F);
+    }
+
+    public static void movePlayerTransition(ServerPlayer player, double x, double y, double z) {
+        player.setDeltaMovement(Vec3.ZERO);
+        player.fallDistance = 0.0F;
+        player.setPos(x, y, z);
+        CompoundTag tag = player.getPersistentData();
+        int transitionTicks = tag.getBoolean(HerobrinePortalUtil.NBT_RISING)
+                ? tag.getInt(HerobrinePortalUtil.NBT_TICKS)
+                : tag.getInt(HerobrinePortalUtil.NBT_SINK_TICKS);
+        // Keep the server's connection position authoritative while the lightweight
+        // client packet supplies smooth positions on the intervening ticks.
+        if (transitionTicks == 0 || transitionTicks % 4 == 0) {
+            player.connection.teleport(x, y, z, player.getYRot(), player.getXRot());
+        }
+        AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> player), new ClientboundPlayerGroundTransitionPosition(x, y, z));
     }
 
     private static void clearSavedTeleportState(CompoundTag tag) {
@@ -451,6 +480,7 @@ public class TransporterFragmentItem extends Item {
         tag.remove(TAG_TELEPORT_TARGET_Y);
         tag.remove(TAG_TELEPORT_TARGET_Z);
         tag.remove(TAG_TELEPORT_ENTITIES);
+        tag.remove(TAG_TELEPORT_EXECUTE_TICK);
     }
 
     private static void clearSinkState(LivingEntity entity) {

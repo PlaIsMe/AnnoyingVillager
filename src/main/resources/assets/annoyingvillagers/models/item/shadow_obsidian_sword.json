@@ -3,5 +3,13 @@
   "textures": {
     "1": "annoyingvillagers:block/shadow_obsidian",
     "particle": "annoyingvillagers:block/shadow_obsidian"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "annoyingvillagers:straight_form": 1.0
+      },
+      "model": "annoyingvillagers:item/shadow_obsidian_straight"
+    }
+  ]
 }

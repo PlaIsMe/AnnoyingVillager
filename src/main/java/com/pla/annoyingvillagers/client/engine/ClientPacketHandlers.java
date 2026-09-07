@@ -411,4 +411,12 @@ public final class ClientPacketHandlers {
                 });
     }
 
+    public static void handlePlayerGroundTransitionPosition(ClientboundPlayerGroundTransitionPosition msg) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null) return;
+        minecraft.player.setDeltaMovement(Vec3.ZERO);
+        minecraft.player.fallDistance = 0.0F;
+        minecraft.player.setPos(msg.x(), msg.y(), msg.z());
+    }
+
 }

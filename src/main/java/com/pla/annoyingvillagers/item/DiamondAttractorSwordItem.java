@@ -1,24 +1,32 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.ItemProjectile;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.network.ClientboundDiamondAttractorFx;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -52,6 +60,20 @@ public class DiamondAttractorSwordItem extends SwordItem implements RigCombatPro
                 return Ingredient.of(new ItemStack(Items.DIAMOND));
             }
         }, 3, -2.8F, (new Properties()));
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
+        if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
+            VanillaWeaponAbilityUtil.swingMainHand(player);
+            serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), AnnoyingVillagersModSounds.DIAMOND_ATTRACTOR.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientboundDiamondAttractorFx(player));
+            pullWeapons(player);
+            player.getCooldowns().addCooldown(this, 20 * 60);
+        }
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
     @Override

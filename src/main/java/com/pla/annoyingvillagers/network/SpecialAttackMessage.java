@@ -80,7 +80,7 @@ public class SpecialAttackMessage {
         if (type == 0) {
             SpecialAttackOnKeyPressedEvent.execute(level, player, crosshairTarget);
         } else if (type == 1) {
-            SpecialAttackOnKeyHeldEvent.execute(level, player);
+            SpecialAttackOnKeyHeldEvent.execute(level, player, crosshairTarget);
         }
     }
 

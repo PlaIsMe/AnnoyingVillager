@@ -5,12 +5,16 @@ import com.pla.annoyingvillagers.entity.BlackFireEntity;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -62,6 +66,18 @@ public class BlackFireSwordItem extends SwordItem implements RigCombatProfilePro
                 return Ingredient.of(new ItemStack(Items.DIAMOND));
             }
         }, 3, -2.1F, (new Properties()));
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
+        if (!level.isClientSide()) {
+            BlackFireEntity.shootFromOwnerLook(level, player);
+            VanillaWeaponAbilityUtil.swingMainHand(player);
+            player.getCooldowns().addCooldown(this, 20 * 15);
+        }
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
     @Override

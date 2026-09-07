@@ -38,10 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
 public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier {
-    // shieldShoot creates five projectiles at once. Ground-fracture is expensive on both
-    // server and client, so never run it every projectile tick.
-    private static final int SLAM_PULSE_INTERVAL_TICKS = 10;
-    private static final int CENTER_PARTICLE_INTERVAL_TICKS = 20;
+    private static final int SLAM_PULSE_INTERVAL_TICKS = 20;
     private static final int ELITE_FX_INTERVAL_TICKS = 4;
     private static final int MAX_LIFETIME_TICKS = 100;
 
@@ -84,8 +81,6 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
             if (this.tickCount == 1 || this.tickCount % ELITE_FX_INTERVAL_TICKS == 0) {
                 HerobrineUtil.spawnEliteEffect(this.level(), this.getX(), this.getY(), this.getZ(), this);
             }
-            // Stagger pulses by entity id so all five shield-shot projectiles do not
-            // generate their expensive fracture packet on the same server tick.
             if (this.tickCount == 1 || (this.tickCount + this.getId()) % SLAM_PULSE_INTERVAL_TICKS == 0) {
                 doGroundSlamAtSelf();
             }
@@ -99,8 +94,7 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
         Vec3 center = new Vec3(this.getX(), floor.getY(), this.getZ());
         Entity src = (this.getOwner() != null) ? this.getOwner() : this;
         if (src instanceof LivingEntity livingSrc) {
-            boolean spawnCenterParticle = this.tickCount == 1 || this.tickCount % CENTER_PARTICLE_INTERVAL_TICKS == 0;
-            CommonUtil.circleSlamFracture(livingSrc, serverLevel, center, 3.5D, true, !spawnCenterParticle, true);
+            CommonUtil.circleSlamFracture(livingSrc, serverLevel, center, 3.5D, true, true, true);
         }
     }
 

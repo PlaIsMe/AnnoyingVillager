@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,6 +21,14 @@ public abstract class HumanoidArmorLayerMixin<
         T extends LivingEntity,
         M extends HumanoidModel<T>,
         A extends HumanoidModel<T>> {
+
+    @Inject(method = "getArmorModelHook", at = @At("HEAD"), remap = false)
+    private void av$setForgeArmorTarget(T entity, ItemStack stack, EquipmentSlot slot, A model,
+                                        org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<A> cir) {
+        // Forge supplies the exact stack that this armor pass is about to render. This
+        // also covers player armor and custom RigArmorLayer subclasses.
+        ColoredGlintState.setTargetStack(stack);
+    }
 
     @Inject(
             method = "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;)V",
@@ -47,8 +56,6 @@ public abstract class HumanoidArmorLayerMixin<
             )
     )
     private RenderType av$replaceArmorGlint(RenderType original) {
-        return ColoredGlintState.getMode() == ColoredGlintState.CYAN
-                ? ColoredGlintRenderTypes.ARMOR_ENTITY_GLINT_CYAN
-                : original;
+        return ColoredGlintRenderTypes.getArmorEntityGlint(ColoredGlintState.getMode(), original);
     }
 }

@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.event;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.*;
 import com.pla.annoyingvillagers.task.DelayedTask;
+import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -50,10 +51,7 @@ public class SpecialAttackOnKeyPressedEvent {
         };
     }
 
-    private static void playTransporterFragmentAnimation(
-            Player player,
-            TransporterFragmentItem.UseMode useMode
-    ) {
+    private static void playTransporterFragmentAnimation(Player player, TransporterFragmentItem.UseMode useMode) {
         switch (useMode) {
             case BOTH_HANDS, MAIN_HAND -> {
                 playPortalSummonAnimation(player);
@@ -95,45 +93,27 @@ public class SpecialAttackOnKeyPressedEvent {
             return;
         }
 
-        if (entity instanceof Player player && !player.level().isClientSide()) {
-            TransporterFragmentItem.UseResult transporterUseResult = TransporterFragmentItem.tryUseSpecialAttack(player, crosshairTarget);
-            if (transporterUseResult.consumed()) {
-                if (transporterUseResult.activated()) {
-                    playTransporterFragmentAnimation(player, transporterUseResult.mode());
-                }
-                return;
-            }
-        }
-
-        if (entity instanceof Player player && !player.level().isClientSide() &&
-                !player.getMainHandItem().getItem().equals(AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get()) &&
-                !player.getOffhandItem().getItem().equals(AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get())) {
-            player.getInventory().items.stream()
-                    .filter(s -> !s.isEmpty() && s.is(AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get()))
-                    .findFirst()
-                    .map(stack -> {
-                        if (stack.getItem() instanceof HerobrineEnderEyeItem herobrineEnderEyeItem) {
-                            var cooldowns = player.getCooldowns();
-                            if (cooldowns.isOnCooldown(herobrineEnderEyeItem)) {
-                                return false;
-                            }
-
-                            HerobrineEnderEyeItem.spawnAndShootDarkObPillars((ServerLevel) player.level(), player, 10);
-                            player.getCooldowns().addCooldown(herobrineEnderEyeItem, 40);
-                            stack.hurtAndBreak(5, player, p -> {
-                            });
-                            return true;
-                        }
-                        return false;
-                    });
-        }
 
         addEfmSpecialAttackCompat(entity);
         addVanillaSpecialAttack(entity);
     }
 
     private static void addVanillaSpecialAttack(Entity entity) {
-
+        if (!(entity instanceof Player player) || player.level().isClientSide() || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
+        if (player.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
+            if (player.isShiftKeyDown()) BlueDemonTridentItem.activateVanillaThunderAttack(player);
+            else BlueDemonTridentItem.activateVanillaElectricField(player);
+            return;
+        }
+        if (WoopieTheSwordItem.activateVanillaSpecial(player)) return;
+        if (ShadowObsidianSwordItem.activateVanillaSpecial(player)) return;
+        if (EnderSlayerScytheItem.activateVanillaSpecial(player)) return;
+        if (DemoniacVoltageReaverItem.activateVanillaSpecial(player)) return;
+        if (ObsidianSledgehammerItem.activateVanillaSpecial(player)) return;
+        if (ShadowObsidianPillarItem.activateVanillaSpecial(player)) return;
+        if (ShadowObsidianWeaponItem.activateVanillaSpecial(player)) return;
+        if (ObsidianWeaponItem.activateVanillaSpecial(player)) return;
+        LegendarySwordItem.activateVanillaSpecial(player);
     }
 
     private static void addEfmSpecialAttackCompat(Entity entity) {

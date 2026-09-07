@@ -32,11 +32,14 @@
     "client.GroundStuckKnockoutRenderMixin",
     "client.EndFireEntityRenderDispatcherMixin",
     "client.EndFireScreenEffectRendererMixin",
+    "client.HumanoidMobRendererMixin",
     "client.IllagerRendererMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ItemRendererMixin",
     "client.ArrowLayerMixin",
-    "client.FishingHookRendererMixin"
+    "client.FishingHookRendererMixin",
+    "client.MinecraftAttackMixin",
+    "client.PlayerRendererBlueDemonPoseMixin"
   ],
   "minVersion": "0.8"
 }
