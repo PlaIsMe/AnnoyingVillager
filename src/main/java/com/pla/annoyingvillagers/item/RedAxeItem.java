@@ -59,7 +59,7 @@ public class RedAxeItem extends SwordItem implements RigCombatProfileProvider {
 
         if (level instanceof ServerLevel serverLevel) {
             stack.getOrCreateTag().putLong(GIANT_FORM_UNTIL_TAG, level.getGameTime() + GIANT_FORM_TICKS);
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
             LivingEntity target = VanillaWeaponAbilityUtil.findLookTarget(player, VANILLA_MELEE_RANGE);
             if (target != null) {
                 float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2.0F;

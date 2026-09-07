@@ -58,7 +58,7 @@ public class ThunderDiamondBladeItem extends SwordItem implements RigCombatProfi
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
         if (level instanceof ServerLevel serverLevel) {
             ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, player, false);
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_ONE_HANDED_UPPERCUT_RIGHT);
             VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
             player.getCooldowns().addCooldown(this, VANILLA_RIGHT_CLICK_COOLDOWN_TICKS);
         }

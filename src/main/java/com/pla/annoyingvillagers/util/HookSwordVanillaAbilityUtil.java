@@ -18,7 +18,7 @@ public final class HookSwordVanillaAbilityUtil {
         ItemStack stack = player.getItemInHand(hand);
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(stack.getItem())) return InteractionResultHolder.pass(stack);
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_ONE_HANDED_UPPERCUT_RIGHT);
             LivingEntity target = VanillaWeaponAbilityUtil.performVanillaMeleeHit(player, 5.0D);
             if (target != null && level.random.nextBoolean()) {
                 HookDisarmLaunch launch = level.random.nextBoolean() ? HookDisarmLaunch.LEFT : HookDisarmLaunch.RIGHT;
@@ -33,7 +33,7 @@ public final class HookSwordVanillaAbilityUtil {
         ItemStack stack = player.getItemInHand(hand);
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(stack.getItem())) return InteractionResultHolder.pass(stack);
         if (!level.isClientSide()) {
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_ONE_HANDED_UPPERCUT_RIGHT);
             LivingEntity target = VanillaWeaponAbilityUtil.performVanillaMeleeHit(player, 5.0D);
             if (target instanceof Mob mob) ObedienceMobEffect.applyObedience(mob, player, player.getOffhandItem().getItem() instanceof com.pla.annoyingvillagers.item.DNAxHookedSwordItem ? 20 * 10 : 20 * 5);
             player.getCooldowns().addCooldown(stack.getItem(), 20 * 15);

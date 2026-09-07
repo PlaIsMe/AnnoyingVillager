@@ -37,7 +37,7 @@ public class DiamondBlasterSwordItem extends SwordItem implements RigCombatProfi
         ItemStack stack = player.getItemInHand(hand);
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
         if (!level.isClientSide()) {
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_ONE_HANDED_UPPERCUT_RIGHT);
             LivingEntity target = VanillaWeaponAbilityUtil.performVanillaMeleeHit(player, 5.0D);
             if (target instanceof Mob mob && RigStunController.supports(mob)) RigStunController.applyStun(mob, RigAnimationId.SUPER_KNOCK_BACK);
             if (target != null) CommonUtil.pushEntityFromCaster(target, player);

@@ -339,6 +339,15 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
         if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.HEROBRINE_SACRIFICING) RigAnimationController.play(this, RigAnimationId.HEROBRINE_SACRIFICING);
     }
 
+    private void playHerobrinePossessAnimation() {
+//      ADD THIS CODE IN AV_EFM
+//        final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
+//        if (livingentitypatch != null && !this.level().isClientSide()) {
+//            livingentitypatch.playAnimationSynchronized(AVAnimations.PLAYER_HEROBRINE_POSSESSION, 0.0F);
+//        }
+        if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.PLAYER_HEROBRINE_POSSESSION) RigAnimationController.play(this, RigAnimationId.PLAYER_HEROBRINE_POSSESSION);
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -355,6 +364,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
                     if (this.summoned) {
                         this.setNoAi(true);
                     }
+                    playHerobrinePossessAnimation();
                     this.initialSpawn = false;
                 }
             }

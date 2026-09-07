@@ -59,7 +59,7 @@ public class ShadowObsidianWeaponItem extends SwordItem implements RigCombatProf
         if (level instanceof ServerLevel serverLevel) {
             BlockState state = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, true);
             HerobrineUtil.summonObsidianCube3x3x3(serverLevel, player, state);
-            VanillaWeaponAbilityUtil.swingBothHands(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             player.getCooldowns().addCooldown(this, VANILLA_ABILITY_COOLDOWN_TICKS);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
@@ -69,7 +69,7 @@ public class ShadowObsidianWeaponItem extends SwordItem implements RigCombatProf
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || !(player.getMainHandItem().getItem() instanceof ShadowObsidianWeaponItem item) || player.getCooldowns().isOnCooldown(item) || !(player.level() instanceof ServerLevel serverLevel)) return false;
         BlockState state = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, true);
         HerobrineUtil.summonObsidianPillarAtTarget(serverLevel, player, state);
-        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         player.getCooldowns().addCooldown(item, VANILLA_ABILITY_COOLDOWN_TICKS);
         return true;
     }

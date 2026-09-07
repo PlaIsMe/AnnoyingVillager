@@ -39,8 +39,8 @@ import java.util.UUID;
 public class WoopieTheSwordItem extends SwordItem implements RigCombatProfileProvider {
     public static final int VANILLA_ULT_COOLDOWN_TICKS = 20 * 30;
     public static final int VANILLA_EXTRA_ULT_COOLDOWN_TICKS = 20 * 15;
-    private static final int VANILLA_ULT_HIT_TICK = 10;
-    private static final int VANILLA_ULT_WIND_TICK = 15;
+    private static final int VANILLA_ULT_HIT_TICK = 5;
+    private static final int VANILLA_ULT_WIND_TICK = 10;
     private static final double VANILLA_MELEE_RANGE = 5.0D;
     private static final double VANILLA_RUSH_SPEED = 2.2D;
 
@@ -77,7 +77,7 @@ public class WoopieTheSwordItem extends SwordItem implements RigCombatProfilePro
         ItemStack stack = player.getItemInHand(hand);
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return super.use(level, player, hand);
         if (level instanceof ServerLevel serverLevel) {
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_ONE_HANDED_STAB);
             VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
             player.getCooldowns().addCooldown(this, VANILLA_ULT_COOLDOWN_TICKS);
             new DelayedTask(VANILLA_ULT_HIT_TICK) { @Override public void run() { if (canContinueVanillaAbility(player, serverLevel, stack)) damageVanillaUltTarget(serverLevel, player); } };
@@ -91,7 +91,7 @@ public class WoopieTheSwordItem extends SwordItem implements RigCombatProfilePro
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof WoopieTheSwordItem item) || player.getCooldowns().isOnCooldown(item)) return false;
 
-        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_ONE_HANDED_STAB);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         player.getCooldowns().addCooldown(item, VANILLA_EXTRA_ULT_COOLDOWN_TICKS);
         spawnVanillaWindBurst(serverLevel, player, CommonUtil.getVanillaSwordOrBodyPosition(player));

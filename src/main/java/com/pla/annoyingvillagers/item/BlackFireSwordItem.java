@@ -74,7 +74,7 @@ public class BlackFireSwordItem extends SwordItem implements RigCombatProfilePro
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
         if (!level.isClientSide()) {
             BlackFireEntity.shootFromOwnerLook(level, player);
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             player.getCooldowns().addCooldown(this, 20 * 15);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());

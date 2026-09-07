@@ -10,7 +10,6 @@ import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import com.pla.annoyingvillagers.task.DelayedTask;
-import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -634,31 +633,29 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
         serverLevel.playSound(null, trident, SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
-    public static boolean activateVanillaElectricField(Player player) {
-        if (!canUseDualVanillaSpecial(player)) return false;
+    public static void activateVanillaElectricField(Player player) {
+        if (!canUseDualVanillaSpecial(player)) return;
         BlueDemonTridentItem item = (BlueDemonTridentItem)player.getMainHandItem().getItem();
-        if (!VanillaWeaponAbilityUtil.isInternalCooldownReady(player, VANILLA_ABILITY_COOLDOWN_TAG) || !(player.level() instanceof ServerLevel serverLevel)) return false;
-        VanillaWeaponAbilityUtil.swingBothHands(player);
+        if (!VanillaWeaponAbilityUtil.isInternalCooldownReady(player, VANILLA_ABILITY_COOLDOWN_TAG) || !(player.level() instanceof ServerLevel serverLevel)) return;
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
         new DelayedTask(20) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) spawnDamageZones(serverLevel, player); } };
         VanillaWeaponAbilityUtil.setInternalCooldown(player, VANILLA_ABILITY_COOLDOWN_TAG, VANILLA_SPECIAL_COOLDOWN_TICKS);
         player.getCooldowns().addCooldown(item, VANILLA_SPECIAL_COOLDOWN_TICKS);
-        return true;
     }
 
-    public static boolean activateVanillaThunderAttack(Player player) {
-        if (!canUseDualVanillaSpecial(player)) return false;
+    public static void activateVanillaThunderAttack(Player player) {
+        if (!canUseDualVanillaSpecial(player)) return;
         BlueDemonTridentItem item = (BlueDemonTridentItem)player.getMainHandItem().getItem();
-        if (!VanillaWeaponAbilityUtil.isInternalCooldownReady(player, VANILLA_ABILITY_COOLDOWN_TAG) || !(player.level() instanceof ServerLevel serverLevel)) return false;
-        VanillaWeaponAbilityUtil.swingBothHands(player);
+        if (!VanillaWeaponAbilityUtil.isInternalCooldownReady(player, VANILLA_ABILITY_COOLDOWN_TAG) || !(player.level() instanceof ServerLevel serverLevel)) return;
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
         new DelayedTask(20) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) relaunchGroundedTridents(serverLevel, player); } };
         new DelayedTask(80) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) summonLightningAtGroundedTridents(serverLevel, player); } };
         VanillaWeaponAbilityUtil.setInternalCooldown(player, VANILLA_ABILITY_COOLDOWN_TAG, VANILLA_SPECIAL_COOLDOWN_TICKS);
         player.getCooldowns().addCooldown(item, VANILLA_SPECIAL_COOLDOWN_TICKS);
-        return true;
     }
 
     public static boolean activateVanillaFestival(Player player) {
@@ -667,7 +664,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
         ItemStack offHand = player.getOffhandItem();
         BlueDemonTridentItem item = (BlueDemonTridentItem)mainHand.getItem();
         if (!isFullyCharged(mainHand) || !isFullyCharged(offHand) || !VanillaWeaponAbilityUtil.isInternalCooldownReady(player, VANILLA_ABILITY_COOLDOWN_TAG) || !(player.level() instanceof ServerLevel serverLevel)) return false;
-        VanillaWeaponAbilityUtil.swingBothHands(player);
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
         new DelayedTask(6) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) summonMissingTridentAndAnimate(serverLevel, player); } };

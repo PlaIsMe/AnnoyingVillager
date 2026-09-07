@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.pla.annoyingvillagers.client.compat.BetterCombatSnakeAttachment;
 import com.pla.annoyingvillagers.capabilities.SnakeBladeCapability;
 import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.entity.SnakeBladeEntity;
@@ -37,6 +38,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -560,8 +562,11 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
 //                joint.m32 + ent.getZ()
 //        );
 
-//        Add a fallback for vanilla weapon vec position
         if (ent instanceof Player player) {
+            if (ModList.get().isLoaded("bettercombat") && player.level().isClientSide()) {
+                Vec3 animatedTip = BetterCombatSnakeAttachment.getToolTipPos(player);
+                if (animatedTip != null) return animatedTip;
+            }
             float bodyYaw = Mth.lerp(partialTicks, player.yBodyRotO, player.yBodyRot) * Mth.DEG_TO_RAD;
             double sinYaw = Mth.sin(bodyYaw);
             double cosYaw = Mth.cos(bodyYaw);
@@ -603,31 +608,19 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
         stack.getOrCreateTag().putBoolean("SecondForm", true);
         stack.getOrCreateTag().putLong(VANILLA_AWAKEN_EXPIRES_TAG, player.level().getGameTime() + VANILLA_AWAKEN_DURATION_TICKS);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         HerobrineUtil.spawnEliteEffect(player.level(), player.getX(), player.getY(), player.getZ(), player);
         player.getCooldowns().addCooldown(stack.getItem(), VANILLA_AWAKEN_DURATION_TICKS);
         return true;
     }
 
-    public static boolean activateVanillaNormalAttack(Player player) {
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide()) return false;
+    public static void activateVanillaNormalAttack(Player player) {
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide()) return;
         ItemStack stack = player.getMainHandItem();
-        if (!(stack.getItem() instanceof DemoniacVoltageReaverItem) || !isVanillaAwakened(stack, player.level())) return false;
-        if (!tryStartSnakeAnimation(stack, player, false)) return true;
-        VanillaWeaponAbilityUtil.swingMainHand(player);
+        if (!(stack.getItem() instanceof DemoniacVoltageReaverItem) || !isVanillaAwakened(stack, player.level())) return;
+        if (!tryStartSnakeAnimation(stack, player, false)) return;
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-        return true;
-    }
-
-    @Override
-    public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
-        boolean result = super.hurtEnemy(stack, target, attacker);
-        if (result && attacker instanceof Player player && !attacker.level().isClientSide() && VanillaWeaponAbilityUtil.abilitiesEnabled() && isVanillaAwakened(stack, attacker.level())) {
-            tryStartSnakeAnimation(stack, attacker, false);
-            VanillaWeaponAbilityUtil.swingMainHand(player);
-            VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-        }
-        return result;
     }
 
     @Override
@@ -636,7 +629,7 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || !isVanillaAwakened(stack, level)) return InteractionResultHolder.pass(stack);
         if (!level.isClientSide()) {
             tryStartSnakeAnimation(stack, player, true);
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());

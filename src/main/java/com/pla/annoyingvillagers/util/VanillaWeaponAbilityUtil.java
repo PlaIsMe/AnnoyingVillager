@@ -1,7 +1,11 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.compat.BetterCombatCompat;
+import com.pla.annoyingvillagers.network.ClientboundBetterCombatAnimation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -11,10 +15,19 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 public final class VanillaWeaponAbilityUtil {
     public static final String EPIC_FIGHT_COMPAT_MOD_ID = "epicfight_annoyingvillagers";
+    public static final String BETTER_COMBAT_MOD_ID = "bettercombat";
+    public static final String BETTER_COMBAT_FIST_ATTACK = "bettercombat:one_handed_punch";
+    public static final String BETTER_COMBAT_ONE_HANDED_STAB = "bettercombat:one_handed_stab";
+    public static final String BETTER_COMBAT_ONE_HANDED_UPPERCUT_RIGHT = "bettercombat:one_handed_uppercut_right";
+    public static final String BETTER_COMBAT_TWO_HANDED_SLAM = "bettercombat:two_handed_slam";
+    public static final String BETTER_COMBAT_TWO_HANDED_SLAM_HEAVY = "bettercombat:two_handed_slam_heavy";
+    public static final String BETTER_COMBAT_TWO_HANDED_SLASH_HORIZONTAL_LEFT = "bettercombat:two_handed_slash_horizontal_left";
+    private static final float BETTER_COMBAT_UPSWING = 0.5F;
 
     private VanillaWeaponAbilityUtil() {
     }
@@ -27,13 +40,52 @@ public final class VanillaWeaponAbilityUtil {
         player.swing(InteractionHand.MAIN_HAND, true);
     }
 
+    public static void swingMainHand(Player player, String betterCombatAnimation) {
+        if (!playBetterCombatAnimation(player, InteractionHand.MAIN_HAND, betterCombatAnimation)) {
+            swingMainHand(player);
+        }
+    }
+
     public static void swingOffHand(Player player) {
         player.swing(InteractionHand.OFF_HAND, true);
+    }
+
+    public static void swingOffHand(Player player, String betterCombatAnimation) {
+        if (!playBetterCombatAnimation(player, InteractionHand.OFF_HAND, betterCombatAnimation)) {
+            swingOffHand(player);
+        }
     }
 
     public static void swingBothHands(Player player) {
         swingMainHand(player);
         swingOffHand(player);
+    }
+
+    private static boolean playBetterCombatAnimation(Player player, InteractionHand hand, String animation) {
+        if (!ModList.get().isLoaded(BETTER_COMBAT_MOD_ID)
+                || animation == null
+                || animation.isBlank()
+                || !(player instanceof ServerPlayer)) {
+            return false;
+        }
+
+        float swingDurationTicks;
+        try {
+            swingDurationTicks = BetterCombatCompat.getAttackCooldownTicks(player);
+        } catch (LinkageError error) {
+            return false;
+        }
+        ClientboundBetterCombatAnimation.AnimatedHand animatedHand = animation.startsWith("bettercombat:two_handed_")
+                ? ClientboundBetterCombatAnimation.AnimatedHand.TWO_HANDED
+                : hand == InteractionHand.OFF_HAND
+                ? ClientboundBetterCombatAnimation.AnimatedHand.OFF_HAND
+                : ClientboundBetterCombatAnimation.AnimatedHand.MAIN_HAND;
+
+        AnnoyingVillagers.PACKET_HANDLER.send(
+                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
+                new ClientboundBetterCombatAnimation(player.getId(), animatedHand, animation, swingDurationTicks, BETTER_COMBAT_UPSWING)
+        );
+        return true;
     }
 
     public static void damageHeldItem(Player player, InteractionHand hand, int amount) {

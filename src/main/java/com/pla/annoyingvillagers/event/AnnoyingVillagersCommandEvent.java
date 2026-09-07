@@ -154,6 +154,7 @@ public final class AnnoyingVillagersCommandEvent {
                 || type == AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get()
                 || type == AnnoyingVillagersModEntities.HEROBRINE_GREG.get()
                 || type == AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get()
+                || type == AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get()
                 || type == AnnoyingVillagersModEntities.ARMORED_HEROBRINE.get()
                 || type == AnnoyingVillagersModEntities.SHADOW_HEROBRINE.get()
                 || type == AnnoyingVillagersModEntities.ELITE_HEROBRINE_KNOCKED.get()

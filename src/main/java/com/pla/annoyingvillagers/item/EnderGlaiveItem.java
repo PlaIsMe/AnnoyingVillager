@@ -50,7 +50,7 @@ public class EnderGlaiveItem extends SwordItem implements RigCombatProfileProvid
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
             spawnVacuumSlice(serverLevel, player, DEFAULT_DAMAGE);
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLASH_HORIZONTAL_LEFT);
             player.getCooldowns().addCooldown(this, VANILLA_ABILITY_COOLDOWN_TICKS);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.client.compat.BetterCombatSnakeAttachment;
 import com.pla.annoyingvillagers.client.model.ModelSnakeBlade;
 import com.pla.annoyingvillagers.client.model.ModelSnakeBladeFragment;
 import com.pla.annoyingvillagers.entity.SnakeBladeEntity;
@@ -29,6 +30,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.DoubleFunction;
@@ -85,6 +87,8 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
             @NotNull MultiBufferSource buffer,
             int packedLight
     ) {
+        if (ModList.get().isLoaded("bettercombat")
+                && BetterCombatSnakeAttachment.defer(this, snakeBladeEntity, entityYaw, partialTicks, packedLight)) return;
         super.render(snakeBladeEntity, entityYaw, partialTicks, poseStack, buffer, packedLight);
 
         poseStack.pushPose();
@@ -102,9 +106,12 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
 
             float tipOffset = snakeBladeEntity.isGuard() ? 1.8F : 2.2F;
             Vec3 swordPos = DemoniacVoltageReaverItem.getToolTipPos(fromEntity, partialTicks, tipOffset);
+            boolean animatedPlayerSocket = ModList.get().isLoaded("bettercombat")
+                    && fromEntity instanceof Player player
+                    && BetterCombatSnakeAttachment.getToolTipPos(player) != null;
 
             Vec3 distVec = (swordPos != null)
-                    ? swordPos.subtract(x, y + 1.2F, z)
+                    ? swordPos.subtract(x, animatedPlayerSocket ? y : y + 1.2F, z)
                     : getPositionOfPriorMob(snakeBladeEntity, fromEntity, partialTicks).subtract(x, y, z);
 
             Vec3 to = distVec.scale(1.0F - progress);
@@ -125,7 +132,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
                     Vec3 next = dir.normalize().scale(step).add(currentNeckButt);
 
                     int neckLight = getLightColor(snakeBladeEntity, next.add(x, y, z));
-                    renderNeckCube(currentNeckButt, next, poseStack, fragmentConsumer, neckLight, 0.0F);
+                    renderNeckCube(currentNeckButt, next, poseStack, fragmentConsumer, neckLight, 0.0F, animatedPlayerSocket);
 
                     currentNeckButt = next;
                     buildUpTo -= step;
@@ -179,9 +186,10 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
                         double w2 = 17.0;
 
                         double headBias = Math.pow(sin, 0.8);
-                        double jitterSide = (jitterSideBase * (0.6 + 0.8 * headBias))
+                        double rootFade = animatedPlayerSocket ? Math.min(1.0D, s / FRAGMENT_LENGTH) : 1.0D;
+                        double jitterSide = rootFade * (jitterSideBase * (0.6 + 0.8 * headBias))
                                 * Math.sin(w1 * time + 28.0 * u + phase1);
-                        double jitterUp = (jitterUpBase * (0.5 + 0.7 * headBias))
+                        double jitterUp = rootFade * (jitterUpBase * (0.5 + 0.7 * headBias))
                                 * Math.sin(w2 * time + 19.0 * u + phase2);
 
                         return base.add(finalRight.scale(jitterSide)).add(0, jitterUp, 0);
@@ -202,7 +210,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
                         int neckLight = getLightColor(snakeBladeEntity, nextW);
 
                         float yawShake = (float) (4.0 * Math.sin(18.0 * time + 0.9 * segmentCount + phaseYaw));
-                        renderNeckCube(prevLocal, nextLocal, poseStack, fragmentConsumer, neckLight, yawShake);
+                        renderNeckCube(prevLocal, nextLocal, poseStack, fragmentConsumer, neckLight, yawShake, animatedPlayerSocket);
 
                         prevW = nextW;
                         buildUpTo -= step;
@@ -222,7 +230,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
                         int neckLight = getLightColor(snakeBladeEntity, next.add(x, y, z));
                         float yawShake = (float) (3.0 * Math.sin(16.0 * time + 0.7 * segmentCount));
 
-                        renderNeckCube(currentNeckButt, next, poseStack, fragmentConsumer, neckLight, yawShake);
+                        renderNeckCube(currentNeckButt, next, poseStack, fragmentConsumer, neckLight, yawShake, animatedPlayerSocket);
 
                         currentNeckButt = next;
                         buildUpTo -= step;
@@ -251,6 +259,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
                 poseStack.mulPose(Axis.XP.rotationDegrees(headPitchWobble));
 
                 int headLight = getLightColor(snakeBladeEntity, to.add(x, y, z));
+                if (animatedPlayerSocket) poseStack.translate(0.0D, -1.2D, 0.0D);
                 snakeBladeModel.renderToBuffer(poseStack, bladeConsumer, headLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 
                 poseStack.popPose();
@@ -261,7 +270,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
     }
 
     private void renderNeckCube(Vec3 from, Vec3 to, PoseStack poseStack, VertexConsumer buffer,
-                                int packedLightIn, float additionalYaw) {
+                                int packedLightIn, float additionalYaw, boolean animatedPlayerSocket) {
         Vec3 dir = to.subtract(from);
 
         float yaw = (float) (Mth.atan2(dir.x, dir.z) * (180F / Math.PI));
@@ -272,6 +281,9 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
         poseStack.mulPose(Axis.YP.rotationDegrees(yaw + additionalYaw));
         poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
 
+        // These models were authored 1.2 blocks above their origin. For an animated
+        // socket, center them locally so pitching the chain cannot move its root.
+        if (animatedPlayerSocket) poseStack.translate(0.0D, -1.2D, 0.0D);
         fragmentModel.renderToBuffer(poseStack, buffer, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
         poseStack.popPose();
     }

@@ -67,7 +67,7 @@ public class DiamondAttractorSwordItem extends SwordItem implements RigCombatPro
         ItemStack stack = player.getItemInHand(hand);
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), AnnoyingVillagersModSounds.DIAMOND_ATTRACTOR.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
             AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientboundDiamondAttractorFx(player));
             pullWeapons(player);

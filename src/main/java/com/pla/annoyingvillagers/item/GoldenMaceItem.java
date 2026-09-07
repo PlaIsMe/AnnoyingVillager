@@ -33,7 +33,7 @@ public class GoldenMaceItem extends SwordItem implements RigCombatProfileProvide
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(Items.GOLD_INGOT));
             }
-        }, 3, -28F, (new Properties()));
+        }, 3, -2.8F, (new Properties()));
     }
 
     @Override

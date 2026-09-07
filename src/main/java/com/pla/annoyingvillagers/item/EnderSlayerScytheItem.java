@@ -65,7 +65,7 @@ public class EnderSlayerScytheItem extends SwordItem implements RigCombatProfile
         HerobrineDragonEntity dragon = getTrackedDragon(player);
         if (dragon != null) {
             dragon.recallAndLand(true);
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             return true;
         }
 
@@ -82,7 +82,7 @@ public class EnderSlayerScytheItem extends SwordItem implements RigCombatProfile
         stack.getOrCreateTag().putBoolean(ACTIVE_SCYTHE_TAG, true);
         player.getCooldowns().addCooldown(item, DRAGON_LIFETIME_TICKS);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         return true;
     }
 
@@ -94,7 +94,7 @@ public class EnderSlayerScytheItem extends SwordItem implements RigCombatProfile
         LivingEntity target = findDragonCommandTarget(player, dragon, 48.0D);
         if (target == null) return true;
         dragon.shootMeteoriteAtTarget(target);
-        VanillaWeaponAbilityUtil.swingOffHand(player);
+        VanillaWeaponAbilityUtil.swingOffHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         VanillaWeaponAbilityUtil.setInternalCooldown(player, COMMAND_COOLDOWN_TAG, COMMAND_COOLDOWN_TICKS);
         return true;
@@ -109,7 +109,7 @@ public class EnderSlayerScytheItem extends SwordItem implements RigCombatProfile
         LivingEntity target = isValidDragonCommandTarget(player, dragon, requestedTarget) ? requestedTarget : findDragonCommandTarget(player, dragon, 48.0D);
         if (target == null) return true;
         dragon.shootThunderBreathAtTarget(target);
-        VanillaWeaponAbilityUtil.swingOffHand(player);
+        VanillaWeaponAbilityUtil.swingOffHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         VanillaWeaponAbilityUtil.setInternalCooldown(player, COMMAND_COOLDOWN_TAG, COMMAND_COOLDOWN_TICKS);
         return true;

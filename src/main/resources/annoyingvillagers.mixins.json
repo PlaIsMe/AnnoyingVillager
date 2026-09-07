@@ -36,6 +36,8 @@
     "client.IllagerRendererMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ItemRendererMixin",
+    "client.SnakeAttachmentGameRendererAccessor",
+    "client.SnakeAttachmentLevelRendererMixin",
     "client.ArrowLayerMixin",
     "client.FishingHookRendererMixin",
     "client.MinecraftAttackMixin",

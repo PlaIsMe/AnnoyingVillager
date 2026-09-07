@@ -5,11 +5,14 @@ import com.pla.annoyingvillagers.client.layer.RigArrowLayer;
 import com.pla.annoyingvillagers.client.layer.RigItemInHandLayer;
 import com.pla.annoyingvillagers.client.model.ModelRig;
 import com.pla.annoyingvillagers.client.model.ModelRigArmor;
+import com.pla.annoyingvillagers.client.renderer.RigLighting;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.LightLayer;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class RigMobRenderer<T extends Mob> extends HumanoidMobRenderer<T, ModelRig<T>> {
@@ -38,6 +41,16 @@ public abstract class RigMobRenderer<T extends Mob> extends HumanoidMobRenderer<
         if (addArrowLayer) {
             this.addLayer(new RigArrowLayer<T>(context, this));
         }
+    }
+
+    @Override
+    protected int getBlockLightLevel(@NotNull T entity, @NotNull BlockPos pos) {
+        return entity.isOnFire() ? 15 : RigLighting.getBrightness(entity.level(), LightLayer.BLOCK, pos);
+    }
+
+    @Override
+    protected int getSkyLightLevel(@NotNull T entity, @NotNull BlockPos pos) {
+        return RigLighting.getBrightness(entity.level(), LightLayer.SKY, pos);
     }
 
     @Override

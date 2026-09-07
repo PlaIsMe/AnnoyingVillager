@@ -64,7 +64,7 @@ public class LegendarySwordItem extends SwordItem implements RigCombatProfilePro
         stack.getOrCreateTag().putBoolean(AWAKENED_TAG, true);
         stack.getOrCreateTag().putLong(AWAKEN_UNTIL_TAG, player.level().getGameTime() + ACTIVE_DURATION_TICKS);
         stack.getOrCreateTag().putInt("CustomModelData", 1);
-        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         applyAttackSpeed(player);
         refreshBuffs(player);
         player.getCooldowns().addCooldown(item, ACTIVE_DURATION_TICKS);
@@ -76,7 +76,7 @@ public class LegendarySwordItem extends SwordItem implements RigCombatProfilePro
         ItemStack stack = player.getItemInHand(hand);
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM_HEAVY);
             VanillaWeaponAbilityUtil.performVanillaMeleeHit(player, 5.0D);
             BlockPos center = player.blockPosition();
             for (int radius = 1; radius <= 6; radius++) {

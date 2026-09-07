@@ -71,7 +71,7 @@ public class ShadowObsidianPillarItem extends SwordItem implements RigCombatProf
         if (level instanceof ServerLevel serverLevel) {
             BlockState state = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, true).setValue(BlockStateProperties.HORIZONTAL_FACING, player.getDirection());
             HerobrineUtil.summonObsidianCube3x3x3(serverLevel, player, state);
-            VanillaWeaponAbilityUtil.swingBothHands(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             player.getCooldowns().addCooldown(this, VANILLA_ABILITY_COOLDOWN_TICKS);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
@@ -95,7 +95,7 @@ public class ShadowObsidianPillarItem extends SwordItem implements RigCombatProf
     public static boolean activateVanillaSpecial(Player player) {
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || !(player.getMainHandItem().getItem() instanceof ShadowObsidianPillarItem item) || player.getCooldowns().isOnCooldown(item) || !(player.level() instanceof ServerLevel serverLevel)) return false;
         HerobrineUtil.summonShadowObsidianLongPillarShootToward(serverLevel, player);
-        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         player.getCooldowns().addCooldown(item, VANILLA_ABILITY_COOLDOWN_TICKS);
         return true;
     }

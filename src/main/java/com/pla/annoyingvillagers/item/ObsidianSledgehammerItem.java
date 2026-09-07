@@ -61,7 +61,7 @@ public class ObsidianSledgehammerItem extends SwordItem implements RigCombatProf
         if (!level.isClientSide()) {
             LivingEntity target = VanillaWeaponAbilityUtil.performVanillaMeleeHit(player, 5.0D);
             if (target != null) GroundStuckMobEffect.apply(target);
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
             player.getCooldowns().addCooldown(this, 20 * 15);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
@@ -71,7 +71,7 @@ public class ObsidianSledgehammerItem extends SwordItem implements RigCombatProf
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide()) return false;
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof ObsidianSledgehammerItem item) || player.getCooldowns().isOnCooldown(item)) return false;
-        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         float yaw = player.getYRot();
         spawnWave(player, yaw, 0.0F, 4.0F, 18);

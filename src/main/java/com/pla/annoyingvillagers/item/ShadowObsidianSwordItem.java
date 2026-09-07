@@ -75,7 +75,7 @@ public class ShadowObsidianSwordItem extends SwordItem implements RigCombatProfi
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return super.use(level, player, hand);
         setStraightFormForTicks(stack, level, VANILLA_STRAIGHT_FORM_TICKS);
         if (level instanceof ServerLevel serverLevel) {
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
             scheduleVanillaUltStrike(serverLevel, player, stack, 10);
             scheduleVanillaUltStrike(serverLevel, player, stack, 17);
@@ -129,7 +129,7 @@ public class ShadowObsidianSwordItem extends SwordItem implements RigCombatProfi
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof ShadowObsidianSwordItem item) || player.getCooldowns().isOnCooldown(item)) return false;
 
-        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         player.getCooldowns().addCooldown(item, VANILLA_PROJECTILE_COOLDOWN_TICKS);
         new DelayedTask(12) { @Override public void run() { if (player.isAlive() && !player.isRemoved() && player.level() == serverLevel) throwVanillaObsidianProjectile(serverLevel, player); } };

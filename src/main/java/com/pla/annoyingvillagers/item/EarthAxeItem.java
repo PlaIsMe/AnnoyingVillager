@@ -77,7 +77,7 @@ public class EarthAxeItem extends SwordItem implements RigCombatProfileProvider 
 
         if (level instanceof ServerLevel serverLevel) {
             summonEarthWall(serverLevel, player);
-            VanillaWeaponAbilityUtil.swingMainHand(player);
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
             VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
             player.getCooldowns().addCooldown(this, VANILLA_WALL_COOLDOWN_TICKS);
         }
@@ -105,7 +105,7 @@ public class EarthAxeItem extends SwordItem implements RigCombatProfileProvider 
             liftBlockAt(serverLevel, liftPos, player);
         }
 
-        VanillaWeaponAbilityUtil.swingMainHand(player);
+        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         player.getCooldowns().addCooldown(item, VANILLA_LIFT_COOLDOWN_TICKS);
         return true;
