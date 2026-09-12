@@ -51,7 +51,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class AngrySteveEntity extends AVNpc implements BurstProtectEntity, RollItemUser
+public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProtectEntity, RollItemUser
         , FishingRodUser, DangerousReaction {
     private static final int LEGENDARY_AWAKEN_DURATION = 20 * 30;
     private static final EntityDataAccessor<Integer> LEGENDARY_AWAKENED =
@@ -74,13 +74,21 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity, RollI
         this.neverLeave = neverLeave;
     }
 
+    @Override
+    public String persistentPlayerIdentity() { return "Steve"; }
+
+    @Override
+    public com.pla.annoyingvillagers.util.NpcTabSkin tabSkin() {
+        return com.pla.annoyingvillagers.util.NpcTabSkin.ANGRY_STEVE;
+    }
+
     public AngrySteveEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.ANGRY_STEVE.get(), level);
     }
 
     public AngrySteveEntity(EntityType<AngrySteveEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(3.0F);
+        this.setMaxUpStep(1.0F);
         this.xpReward = 8;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());

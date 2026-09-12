@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(targets = "punchy.client.state.SpearStateMachine", remap = false)
+@Mixin(value = punchy.client.state.SpearStateMachine.class, remap = false)
 public abstract class SpearStateMachineMixin {
     @Inject(method = "isSpearStack", at = @At("HEAD"), cancellable = true, require = 1)
     private static void av$leaveTridentToThrowAnimation(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {

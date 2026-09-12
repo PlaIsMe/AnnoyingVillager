@@ -45,7 +45,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Random;
 import java.util.UUID;
 
-public class BbqEntity extends Chicken implements BurstProtectEntity, CombatVoiceLineEntity {
+public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectEntity, CombatVoiceLineEntity {
     @Nullable
     private BlueDemonEntity leader;
     @Nullable

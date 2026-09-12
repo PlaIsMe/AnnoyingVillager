@@ -723,6 +723,8 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.JUMP, 10));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EAT_OFFHAND, 32, RigAnimationPlaybackType.LEFT_HAND));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EAT_MAINHAND, 32, RigAnimationPlaybackType.MAIN_HAND));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.DIG_MAINHAND, 10, RigAnimationPlaybackType.MAIN_HAND));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.USE_MAINHAND, 8, RigAnimationPlaybackType.MAIN_HAND));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.DEATH, 27));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.FALL, 167));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.LANDING, 17));

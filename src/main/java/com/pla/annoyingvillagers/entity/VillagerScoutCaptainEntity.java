@@ -43,7 +43,7 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
 
     public VillagerScoutCaptainEntity(EntityType<VillagerScoutCaptainEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.5F);
+        this.setMaxUpStep(1.0F);
         this.xpReward = 0;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());

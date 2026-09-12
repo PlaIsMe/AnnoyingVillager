@@ -365,7 +365,9 @@ public enum RigAnimationId {
     SHOCKED,
     SHOCKED_LONG,
     FALL,
-    LANDING;
+    LANDING,
+    DIG_MAINHAND,
+    USE_MAINHAND;
 
     private static final RigAnimationId[] VALUES = values();
 

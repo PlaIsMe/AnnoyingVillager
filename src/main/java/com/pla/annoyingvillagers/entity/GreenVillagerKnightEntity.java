@@ -43,7 +43,7 @@ public class GreenVillagerKnightEntity extends VillagerArmyEntity {
 
     public GreenVillagerKnightEntity(EntityType<GreenVillagerKnightEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.setMaxUpStep(1.0F);
         this.xpReward = 0;
         this.setNoAi(false);
         this.setPlaceBlockToParryChance(0.7);

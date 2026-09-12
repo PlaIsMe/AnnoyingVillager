@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.network.ClientboundGroundStuckKnockoutFx;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigStunController;
+import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -35,6 +36,10 @@ public class GroundStuckMobEffect extends MobEffect {
     public static final int VANILLA_FALLBACK_DURATION = 20 * 2;
     public static final float BASE_KNOCKOUT_CHANCE = 0.35F;
     public static final int KNOCKOUT_TICKS = 60;
+    private static final double GROUND_STUCK_SLAM_RADIUS = 0.8D;
+    private static final int GROUND_STUCK_SLAM_PARTICLES = 35;
+    private static final double GROUND_STUCK_SLAM_SPREAD = 0.7D;
+    private static final double GROUND_STUCK_FRACTURE_RADIUS = 2.5D;
     public static final String NBT_STUCK = "AVGroundStuck";
     public static final String NBT_ANCHOR_X = "AVGroundStuckX";
     public static final String NBT_ANCHOR_Y = "AVGroundStuckY";
@@ -254,12 +259,17 @@ public class GroundStuckMobEffect extends MobEffect {
         entity.hasImpulse = true;
         entity.hurtMarked = true;
 
-        // Do not run CommonUtil.circleSlamFracture here. The Epic Fight branch delegates
-        // this cosmetic to Epic Fight's fracture renderer, while the vanilla-rig branch's
-        // replacement creates temporary FractureBlockState terrain and debris. spawnWave
-        // can Ground-Stuck several entities at once, making that replacement far more
-        // expensive than the actual 108 smoke-wave quads. The smoke ring already provides
-        // the impact visual, so Ground Stuck anchoring stays gameplay-only here.
+        // Give each successful anchor one medium ground-slam impact. This runs only
+        // when the stuck anchor is first created, never on its subsequent effect ticks.
+        CommonUtil.spawnGroundSlamFracture(
+                entity,
+                level,
+                new Vec3(x, support.topY, z),
+                GROUND_STUCK_SLAM_RADIUS,
+                GROUND_STUCK_SLAM_PARTICLES,
+                GROUND_STUCK_SLAM_SPREAD,
+                GROUND_STUCK_FRACTURE_RADIUS
+        );
         return true;
     }
 

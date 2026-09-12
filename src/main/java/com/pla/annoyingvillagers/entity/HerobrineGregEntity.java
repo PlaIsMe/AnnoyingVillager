@@ -6,10 +6,7 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.blockentity.CryingObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
-import com.pla.annoyingvillagers.clazz.DangerousReaction;
-import com.pla.annoyingvillagers.clazz.Difficulty;
-import com.pla.annoyingvillagers.clazz.HerobrinePortalSupportCaster;
-import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
+import com.pla.annoyingvillagers.clazz.*;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.goal.HerobrineGregSixPortalSupportGoal;
@@ -28,7 +25,6 @@ import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.spawnhandler.GregData;
-import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -84,7 +80,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 
-public class HerobrineGregEntity extends Monster implements RigStunnableEntity, DangerousReaction, HerobrinePortalSupportCaster {
+public class HerobrineGregEntity extends Monster implements ForceTickEntity, RigStunnableEntity, DangerousReaction, HerobrinePortalSupportCaster {
     private static final int MAX_COMBAT_LOW_CLONE_SUPPORT = 5;
     private static final float FISHING_HOOK_ESCAPE_CANCEL_CHANCE = 0.8F;
     private static final double SECOND_FORM_SUPPORT_SEARCH_RADIUS_SQR = 48.0D * 48.0D;

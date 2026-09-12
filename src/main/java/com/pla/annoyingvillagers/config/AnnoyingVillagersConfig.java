@@ -8,6 +8,10 @@ import java.util.List;
 public class AnnoyingVillagersConfig {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec SPEC;
+    public static ForgeConfigSpec.BooleanValue FORCE_TICK_MOBS;
+    public static ForgeConfigSpec.BooleanValue REMOTE_NPC_DEPARTURE_ENABLED;
+    public static ForgeConfigSpec.IntValue REMOTE_NPC_DEPARTURE_MIN_MINUTES;
+    public static ForgeConfigSpec.IntValue REMOTE_NPC_DEPARTURE_MAX_MINUTES;
 
     public static ForgeConfigSpec.ConfigValue<Double> HEROBRINE_POSSESS_RATE;
     public static ForgeConfigSpec.ConfigValue<Integer> HEROBRINE_RECALL_MIN_TIME;
@@ -26,6 +30,20 @@ public class AnnoyingVillagersConfig {
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> WEAPON_DISARMS_BLACKLIST;
 
     static {
+        FORCE_TICK_MOBS = BUILDER.comment(
+                        "Keep ForceTickEntity mobs ticking remotely (Herobrine mobs, Null weapons, Blue Demon, BBQ and Jev).",
+                        "Disabling releases their runtime chunk tickets; player-like Steve/Alex/Chris sessions have separate ownership.")
+                .define("forceTickMobs", true);
+
+        BUILDER.push("remoteNpcDeparture");
+        REMOTE_NPC_DEPARTURE_ENABLED = BUILDER.comment("Allow force-ticked NPCs to leave when no external chunk loader covers them.")
+                .define("enabled", true);
+        REMOTE_NPC_DEPARTURE_MIN_MINUTES = BUILDER.comment("Minimum unattended online simulation time in minutes. Counts only while this NPC owns a force ticket.")
+                .defineInRange("minMinutes", 10, 1, 10080);
+        REMOTE_NPC_DEPARTURE_MAX_MINUTES = BUILDER.comment("Maximum unattended time in minutes. External loading resets the timer; reversed bounds are normalized.")
+                .defineInRange("maxMinutes", 30, 1, 10080);
+        BUILDER.pop();
+
         HEROBRINE_POSSESS_RATE = BUILDER.comment(
                         "[ONLY WORK WHEN SmartNpc is installed] Chance for Herobrine possess another player npc into Low Herobrine Clone")
                 .defineInRange("herobrinePossessRate", 0.5, 0, 1);

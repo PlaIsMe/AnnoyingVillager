@@ -52,7 +52,7 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
-public class NullWeapon extends Monster implements RigStunnableEntity {
+public class NullWeapon extends Monster implements ForceTickEntity, RigStunnableEntity {
     protected UUID nullUUID;
     protected NullEntity nullEntity;
 

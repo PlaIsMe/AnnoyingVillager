@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class SteveEntity extends AVNpc implements BurstProtectEntity, RollItemUser
+public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProtectEntity, RollItemUser
         , FishingRodUser, DangerousReaction {
     // 0: normal
     // 1: second
@@ -67,13 +67,16 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity, RollItemUs
         this.state = state;
     }
 
+    @Override
+    public String persistentPlayerIdentity() { return "Steve"; }
+
     public SteveEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.STEVE.get(), level);
     }
 
     public SteveEntity(EntityType<SteveEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(3.0F);
+        this.setMaxUpStep(1.0F);
         this.xpReward = 8;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -190,6 +193,7 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity, RollItemUs
 
                 angrySteveEntity.moveTo(this.blockPosition(), this.getYRot(), this.getXRot());
                 InventoryUtils.transferInventory(this.getInventory(), angrySteveEntity.getInventory());
+                com.pla.annoyingvillagers.util.RemoteNpcDeparture.copy(this, angrySteveEntity);
                 this.discard();
                 SteveData steveData = SteveData.get(serverLevel);
                 steveData.forceClaim(serverLevel, angrySteveEntity.getUUID());

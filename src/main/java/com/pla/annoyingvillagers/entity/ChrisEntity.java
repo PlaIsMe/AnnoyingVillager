@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.entity;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
+import com.pla.annoyingvillagers.clazz.PersistentPlayerNpc;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.spawnhandler.ChrisData;
@@ -41,12 +42,15 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-public class ChrisEntity extends AVNpc implements BurstProtectEntity {
+public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProtectEntity {
     private int state = 0;
     @Override
     public float getBurstProtectCapRatio() {
         return 0.15F;
     }
+
+    @Override
+    public String persistentPlayerIdentity() { return "Chris"; }
 
     public ChrisEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.CHRIS.get(), level);
@@ -54,7 +58,7 @@ public class ChrisEntity extends AVNpc implements BurstProtectEntity {
 
     public ChrisEntity(EntityType<ChrisEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.6F);
+        this.setMaxUpStep(1.0F);
         this.xpReward = 50;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());

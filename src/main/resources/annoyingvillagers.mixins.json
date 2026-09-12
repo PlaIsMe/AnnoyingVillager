@@ -5,6 +5,8 @@
   "refmap": "annoyingvillagers.mixins.refmap.json",
   "plugin": "com.pla.annoyingvillagers.mixin.plugin.CompatMixinPlugin",
   "mixins": [
+    "DistanceManagerAccessor",
+    "ServerChunkCacheAccessor",
     "MobMixin",
     "EndFireEntityMixin",
     "SkeletonMixin",
@@ -28,6 +30,9 @@
     "PlayerMixin"
   ],
   "client": [
+    "client.PlayerInfoMixin",
+    "client.PlayerFaceRendererMixin",
+    "client.ClientSuggestionProviderMixin",
     "compat.punchy.TridentStateMachineMixin",
     "compat.punchy.UseItemStateMachineMixin",
     "compat.punchy.SpearStateMachineMixin",

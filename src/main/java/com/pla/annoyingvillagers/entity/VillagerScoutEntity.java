@@ -45,7 +45,7 @@ public class VillagerScoutEntity extends VillagerArmyEntity {
 
     public VillagerScoutEntity(EntityType<VillagerScoutEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.setMaxUpStep(1.0F);
         this.xpReward = 8;
         this.setNoAi(false);
         this.setPersistenceRequired();

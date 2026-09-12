@@ -43,7 +43,7 @@ public class PurpleVillagerKnightEntity extends VillagerArmyEntity {
 
     public PurpleVillagerKnightEntity(EntityType<PurpleVillagerKnightEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(3.0F);
+        this.setMaxUpStep(1.0F);
         this.xpReward = 8;
         this.setNoAi(false);
         this.setPlaceBlockToParryChance(0.7);

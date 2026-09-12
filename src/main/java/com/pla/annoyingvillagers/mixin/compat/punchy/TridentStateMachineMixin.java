@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(targets = "punchy.client.state.TridentStateMachine", remap = false)
+@Mixin(value = punchy.client.state.TridentStateMachine.class, remap = false)
 public abstract class TridentStateMachineMixin {
     // Punchy 2.6.2's first boolean local is its vanilla TridentItem type check.
     // Reuse its charge/hold/release state machine, which follows getUsedItemHand().

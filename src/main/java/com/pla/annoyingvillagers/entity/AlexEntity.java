@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.clazz.DangerousReaction;
+import com.pla.annoyingvillagers.clazz.PersistentPlayerNpc;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -46,7 +47,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 
-public class AlexEntity extends AVNpc implements BurstProtectEntity, DangerousReaction {
+public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProtectEntity, DangerousReaction {
     private JevEntity jevToProtect;
     private UUID jevUUID;
     private boolean spawnJev = false;
@@ -69,6 +70,9 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity, DangerousRe
     public void setJevUUID(UUID jevUUID) {
         this.jevUUID = jevUUID;
     }
+
+    @Override
+    public String persistentPlayerIdentity() { return "Alex"; }
 
     public AlexEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.ALEX.get(), level);
@@ -101,7 +105,7 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity, DangerousRe
 
     public AlexEntity(EntityType<AlexEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.8F);
+        this.setMaxUpStep(1.0F);
         this.xpReward = 60;
         this.setNoAi(false);
         this.setCustomName(Component.translatable(this.getType().getDescriptionId()));

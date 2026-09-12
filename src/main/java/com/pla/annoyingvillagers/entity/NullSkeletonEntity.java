@@ -305,6 +305,10 @@ public class NullSkeletonEntity extends AbstractSkeleton {
         }
     }
 
+    public boolean isOwnedBy(Player owner) {
+        return owner != null && playerUUID != null && playerUUID.equals(owner.getUUID());
+    }
+
     @Override
     public boolean hurt(@NotNull DamageSource pSource, float pAmount) {
         if (player != null && pSource.getEntity() == player) return false;

@@ -76,7 +76,7 @@ import java.util.*;
 
 import static com.pla.annoyingvillagers.util.HerobrinePortalUtil.*;
 
-public class HerobrineMob extends Monster implements BurstProtectEntity, CombatVoiceLineEntity, LockableRigAttackAnimation, RigStunEscapeEntity, DangerousReaction {
+public class HerobrineMob extends Monster implements ForceTickEntity, BurstProtectEntity, CombatVoiceLineEntity, LockableRigAttackAnimation, RigStunEscapeEntity, DangerousReaction {
     private boolean renderPortal = false;
     private int recallTicks = 0;
     private String chatName;
@@ -1465,4 +1465,3 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         this.heal(this.getMaxHealth() / 10);
     }
 }
-

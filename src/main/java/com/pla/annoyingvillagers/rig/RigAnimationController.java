@@ -107,6 +107,9 @@ public final class RigAnimationController {
 
     private static void playNow(Mob mob, RigAnimationSpec spec, LivingEntity target) {
         if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
+        if (mob instanceof com.pla.annoyingvillagers.clazz.AVNpc npc
+                && net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+                new com.pla.annoyingvillagers.event.AVNpcRigAnimationEvent(npc, spec, target))) return;
         if (target != null && target.isAlive()) faceTarget(mob, target);
         if (spec.animationId().isAttack()) mob.swing(InteractionHand.MAIN_HAND, true);
         if (spec.jumpOnStart() && mob.onGround()) mob.getJumpControl().jump();

@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.clazz.DangerousReaction;
+import com.pla.annoyingvillagers.clazz.ForceTickEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -51,7 +52,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class JevEntity extends AVNpc implements BurstProtectEntity, DangerousReaction {
+public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEntity, DangerousReaction {
     private static final int JEV_POTION_STACK_SIZE = 16;
     private static final List<ItemLike> JEV_HOOKABLE_BLOCKS = List.of(
             Blocks.OAK_PLANKS,
@@ -103,7 +104,7 @@ public class JevEntity extends AVNpc implements BurstProtectEntity, DangerousRea
 
     public JevEntity(EntityType<JevEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(0.6F);
+        this.setMaxUpStep(1.0F);
         this.xpReward = 10;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());

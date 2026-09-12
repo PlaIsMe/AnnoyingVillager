@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.clazz.ForceTickEntity;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -36,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Random;
 import java.util.UUID;
 
-public class HerobrineWardenEntity extends Warden {
+public class HerobrineWardenEntity extends Warden implements ForceTickEntity {
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState eatingAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;

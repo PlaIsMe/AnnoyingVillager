@@ -108,6 +108,14 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
     @Override
     public void stop() {
+        // AvNpc utilities own higher goal priorities. Cancel only the clip this goal
+        // started; a stun or scripted action may already have replaced it.
+        if (this.mob instanceof com.pla.annoyingvillagers.clazz.AVNpc npc
+                && !npc.isLocked() && !RigStunController.isStunned(this.mob)
+                && this.previousAnimation == RigAnimationController.getActiveAnimationId(this.mob)
+                && RigAnimationController.hasActiveProfileAttack(this.mob)) {
+            RigAnimationController.stop(this.mob, this.previousAnimation);
+        }
         this.mob.setAggressive(false);
         RidingUtil.stopNavigation(this.mob);
         this.path = null;
@@ -120,6 +128,11 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
     @Override
     public boolean isInterruptable() {
+        // Waiting for the chain boundary can starve recovery: attack ticks may start
+        // the next swing before the goal selector gets another admission pass.
+        if (this.mob instanceof com.pla.annoyingvillagers.clazz.AVNpc npc
+                && !npc.isLocked() && !RigStunController.isStunned(this.mob)
+                && RigAnimationController.hasActiveProfileAttack(this.mob)) return true;
         if (!RigAnimationController.hasActiveAnimation(this.mob)) {
             return true;
         }

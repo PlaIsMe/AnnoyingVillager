@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(targets = "punchy.client.state.UseItemStateMachine", remap = false)
+@Mixin(value = punchy.client.state.UseItemStateMachine.class, remap = false)
 public abstract class UseItemStateMachineMixin {
     @Inject(method = "isChargeItem", at = @At("HEAD"), cancellable = true, require = 1)
     private void av$reserveTridentCharge(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {

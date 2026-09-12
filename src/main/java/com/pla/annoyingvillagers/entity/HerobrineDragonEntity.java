@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.clazz.ForceTickEntity;
 import com.pla.annoyingvillagers.client.animation.DragonAnimator;
 import com.pla.annoyingvillagers.client.engine.MountCameraManager;
 import com.pla.annoyingvillagers.client.engine.MountControlsMessenger;
@@ -68,7 +69,7 @@ import static net.minecraft.world.entity.ai.attributes.Attributes.*;
  * @author Kay9
  */
 @SuppressWarnings({"deprecation", "SameReturnValue"})
-public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal, PlayerRideable
+public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEntity, FlyingAnimal, PlayerRideable
 {
     public static final double BASE_SPEED_GROUND = 0.3;
     public static final double BASE_SPEED_FLYING = 0.32;

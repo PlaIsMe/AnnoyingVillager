@@ -11,6 +11,9 @@ import com.pla.annoyingvillagers.rig.RigStunEscapeEntity;
 import com.pla.annoyingvillagers.util.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -41,6 +44,47 @@ import java.util.Random;
 import java.util.function.Predicate;
 
 public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoiceLineEntity, LockableRigAttackAnimation, RigStunEscapeEntity {
+    private static final EntityDataAccessor<Boolean> RECOVERY_DIGGING = SynchedEntityData.defineId(AVNpc.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> HEALING = SynchedEntityData.defineId(AVNpc.class, EntityDataSerializers.BOOLEAN);
+    private Object recoveryOwner;
+    private int recoveryStartTick;
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(RECOVERY_DIGGING, false);
+        this.entityData.define(HEALING, false);
+    }
+
+    public boolean isRecoveryActionActive() { return this.recoveryOwner != null; }
+    public boolean isRecoveryDigging() { return this.entityData.get(RECOVERY_DIGGING); }
+    public void setRecoveryDigging(boolean value) { this.entityData.set(RECOVERY_DIGGING, value); }
+
+    public boolean beginRecoveryAction(Object owner) {
+        if (this.recoveryOwner != null || this.isLocked() || this.isHealing()) return false;
+        this.recoveryOwner = owner;
+        this.recoveryStartTick = this.tickCount;
+        this.lock();
+        return true;
+    }
+
+    public void endRecoveryAction(Object owner) {
+        if (this.recoveryOwner != owner) return;
+        this.setRecoveryDigging(false);
+        this.recoveryOwner = null;
+        this.unlock();
+    }
+
+    @Override
+    public void setTarget(@Nullable LivingEntity target) {
+        LivingEntity current = this.getTarget();
+        // TargetGoal's sight timeout must not discard an enemy midway through opening its wall.
+        if (target == null && this.isRecoveryActionActive() && this.tickCount - this.recoveryStartTick < 800
+                && current != null && current.isAlive() && !current.isRemoved() && !this.isAlliedTo(current)
+                && this.distanceToSqr(current) <= 28.0D * 28.0D
+                && !(current instanceof net.minecraft.world.entity.player.Player player && (player.isCreative() || player.isSpectator()))) return;
+        super.setTarget(target);
+    }
     private static final int PLACE_BLOCK_PARRY_COOLDOWN_TICKS = 60;
     private static final float VILLAGER_ARMOR_DROP_CHANCE = 0.12F;
     private static final float VILLAGER_WEAPON_DROP_CHANCE = 0.16F;
@@ -80,7 +124,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private int swapToBowCooldown = 0;
     private ItemStack mainWeaponItem = ItemStack.EMPTY;
     private ItemStack offWeaponItem = ItemStack.EMPTY;
-    private boolean healing = false;
     private boolean initialSpawn = false;
     private boolean useBow = true;
     private Entity blockDamage = null;
@@ -237,11 +280,11 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     public boolean isHealing() {
-        return healing;
+        return this.entityData.get(HEALING);
     }
 
     public void setHealing(boolean healing) {
-        this.healing = healing;
+        this.entityData.set(HEALING, healing);
     }
 
     public int getSwapToBowCooldown() {
@@ -611,6 +654,9 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
         this.goalSelector.addGoal(-6, new WaterFallGoal(this));
         this.goalSelector.addGoal(-5, new ProjectileBlockGoal(this));
+        this.goalSelector.addGoal(-4, new EscapeWallGoal(this));
+        this.goalSelector.addGoal(-4, new EscapeHoleWithBlockGoal(this));
+        this.goalSelector.addGoal(-4, new BreakTargetObstructionGoal(this));
         this.goalSelector.addGoal(-4, new UseLiquidBucketGoal(this));
         this.goalSelector.addGoal(-3, new WaterEnderPearlEscapeGoal(this));
         this.goalSelector.addGoal(-3, new ThrowEnderPearlToTargetGoal(this));
@@ -750,6 +796,10 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             return false;
         }
         InventoryUtils.addItem(this.inventory, this.getBowItem());
+        boolean diamondTools = this instanceof SteveEntity || this instanceof AngrySteveEntity
+                || this instanceof AlexEntity || this instanceof ChrisEntity;
+        InventoryUtils.addItem(this.inventory, new ItemStack(diamondTools ? Items.DIAMOND_PICKAXE : Items.IRON_PICKAXE));
+        InventoryUtils.addItem(this.inventory, new ItemStack(diamondTools ? Items.DIAMOND_AXE : Items.IRON_AXE));
         return true;
     }
 

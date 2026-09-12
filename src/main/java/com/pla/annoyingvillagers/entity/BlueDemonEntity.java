@@ -63,7 +63,7 @@ import java.util.*;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 
-public class BlueDemonEntity extends Monster implements BurstProtectEntity, CombatVoiceLineEntity,
+public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstProtectEntity, CombatVoiceLineEntity,
         LockableRigAttackAnimation, RigStunEscapeEntity, RollItemUser, DangerousReaction {
     private static final float WATER_SWIM_ACCELERATION = 0.08F;
     private static final double WATER_SWIM_HORIZONTAL_SPEED = 0.42D;

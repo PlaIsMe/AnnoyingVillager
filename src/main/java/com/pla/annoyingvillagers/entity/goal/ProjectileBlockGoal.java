@@ -43,6 +43,7 @@ public class ProjectileBlockGoal extends Goal {
 
     @Override
     public boolean canUse() {
+        if (this.avNpc.isRecoveryActionActive()) return false;
         if (!(this.avNpc.level() instanceof ServerLevel)
                 || !this.avNpc.isAlive()
                 || this.avNpc.isRemoved()
@@ -81,6 +82,7 @@ public class ProjectileBlockGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
+        if (this.avNpc.isRecoveryActionActive()) return false;
         return this.parryTicks < MAX_PARRY_TICKS
                 && this.projectile != null
                 && this.avNpc.isAlive()
